@@ -2,13 +2,13 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 09:24:33
-LastEditTime: 2025-02-08 09:37:45
+LastEditTime: 2025-02-08 22:11:45
 '''
 import torch.nn as nn
 import torch.nn.init as init
 
 
-def init_network_weights(module, init_type='kaiming_normal'):
+def init_network_weights(module, init_type='default'):
     if isinstance(module, nn.Linear):
         if init_type == 'kaiming_normal':
             # Kaiming Normal 初始化
@@ -31,10 +31,8 @@ def init_network_weights(module, init_type='kaiming_normal'):
         elif init_type == 'constant':
             # 常数初始化
             init.constant_(module.weight, 0)
-        
-        # 偏置初始化为零
-        if module.bias is not None:
-            init.zeros_(module.bias)
+        else:
+            pass
 
 
 if __name__ == '__main__':

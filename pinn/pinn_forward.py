@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 11:26:26
-LastEditTime: 2025-02-08 20:45:38
+LastEditTime: 2025-02-08 21:50:10
 '''
 import torch
 from pinn.pinn_base import _PINN
@@ -36,12 +36,17 @@ class PINNForward(_PINN):
         return solution
     
     def init_net_res_input(self, X):
-        columns = []
-        for i in range(X.size(1)):
-            column = X[:, [i]]
-            column.requires_grad_(True)
-            columns.append(column)
-        return columns
+        num_columns = X.size(1)
+        if num_columns > 1:
+            columns = []
+            for i in range(num_columns):
+                column = X[:, [i]]
+                column.requires_grad_(True)
+                columns.append(column)
+            return columns
+        elif num_columns == 1:
+            X.requires_grad_(True)
+            return X
     
     def net_res(self, X):
         NotImplementedError
