@@ -2,13 +2,13 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-07 22:36:57
-LastEditTime: 2025-02-08 13:27:13
+LastEditTime: 2025-02-08 13:52:58
 FilePath: \PDEasy\dataset\rectangle.py
 '''
 import numpy as np
 
 from dataset.dataset_base import _Dataset
-from utils import sample_on_line
+from utils.sample_on_line import sample_on_line
 
 
 class Dataset1D(_Dataset):
