@@ -7,7 +7,7 @@ LastEditTime: 2025-02-08 14:34:58
 import numpy as np
 import torch
 
-def compute_relative_error(pinn, ref_data, num_sample=None):
+def relative_error(pinn, ref_data, num_sample=None):
     """
     计算相对误差
     """
