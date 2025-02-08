@@ -2,8 +2,9 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 13:26:51
-LastEditTime: 2025-02-08 14:14:49
+LastEditTime: 2025-02-08 19:49:21
 '''
+import numpy as np
 import torch
 
 
@@ -14,11 +15,19 @@ class _Dataset():
 
     def array2tensor(self):
         for k, v in self.data_dict.items():
-            self.data_dict[k] = torch.from_numpy(v).float().to(self.device)
-
+            if isinstance(v, np.ndarray):
+                self.data_dict[k] = torch.from_numpy(v).float().to(self.device)
+            else:
+                actual_type = type(v).__name__
+                raise ValueError(f"Current {k} is not a numpy array, but {actual_type}")
+            
     def tensor2array(self):
         for k, v in self.data_dict.items():
-            self.data_dict[k] = v.detach().cpu().numpy()
+            if isinstance(v, torch.Tensor):
+                self.data_dict[k] = v.detach().cpu().numpy()
+            else:
+                actual_type = type(v).__name__
+                raise ValueError(f"Current {k} is not a numpy array, but {actual_type}")
 
     def statistic(self):
         self.data_dict["mean"] = self.data_dict["X_res"].mean(axis=0)
