@@ -4,8 +4,9 @@ import os
 
 
 def plot_solution_from_data(figure_dir, **kwargs):
+    plt.rcParams.update({'font.size':18})
 
-    required_keys = ['x_grid', 'y_grid','sol','sol_pred']
+    required_keys = ['x_grid','sol','sol_pred']
     for key in required_keys:
         if key not in kwargs:
             raise ValueError(f"Missing required parameter: {key}")

@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 14:20:45
-LastEditTime: 2025-02-08 14:34:58
+LastEditTime: 2025-02-08 21:15:02
 '''
 import numpy as np
 import torch
@@ -12,11 +12,9 @@ def relative_error(pinn, ref_data, num_sample=None):
     计算相对误差
     """
     pinn.eval()
-    device = next(pinn.net_sol.parameters()).device
+    device = next(pinn.network_solution.parameters()).device
 
-
-    X = ref_data['X']
-    u = ref_data['u']
+    X, u = ref_data
 
     # 如果设置了 num_sample 则随机采样以便快速计算 u 的 relative l2 error
     if num_sample is not None:

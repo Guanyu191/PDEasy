@@ -2,15 +2,15 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 13:30:02
-LastEditTime: 2025-02-08 13:52:03
+LastEditTime: 2025-02-08 20:29:31
 '''
 import torch
 import torch.nn as nn
 
 
-class PINN(nn.Module):
+class _PINN(nn.Module):
     def __init__(self):
-        super(PINN, self).__init__()
+        super(_PINN, self).__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def forward(self, data_dict):

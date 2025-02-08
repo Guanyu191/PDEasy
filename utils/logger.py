@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 14:57:49
-LastEditTime: 2025-02-08 19:55:37
+LastEditTime: 2025-02-08 21:14:48
 '''
 import os
 import time
@@ -23,7 +23,6 @@ class Logger:
         self.print_interval = print_interval
         self.current_iter = 0
         self.start_time = time.time()
-        self.best_loss = np.inf
 
     def record(self, **kwargs):
         """Record the training information for each iteration."""
@@ -52,7 +51,7 @@ class Logger:
 
     def _print_logs(self):
         """Print the latest logs."""
-        log_str = f'Iter # {self.log['iter'][-1]:4d}/{self.num_iters} '
+        log_str = f"Iter # {self.log['iter'][-1]:4d}/{self.num_iters} "
         log_str += f'Time {time.time() - self.start_time:.1f}s\t'
         for key in self.log_keys[1:-1]:
             log_str += f"{key}: {self.log[key][-1]:.3e}, "

@@ -2,12 +2,13 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 11:26:26
-LastEditTime: 2025-02-08 14:18:09
+LastEditTime: 2025-02-08 20:45:38
 '''
-from pinn.pinn_base import PINNBase
+import torch
+from pinn.pinn_base import _PINN
 
 
-class PINNForward(PINNBase):
+class PINNForward(_PINN):
     def __init__(self, network_solution, should_normalize=True):
         super(PINNForward, self).__init__()
         self.network_solution = network_solution
@@ -21,10 +22,26 @@ class PINNForward(PINNBase):
         NotImplementedError
 
     def net_sol(self, X):
+        # 判断 X 的类型
+        if isinstance(X, torch.Tensor):
+            pass
+        elif isinstance(X, (list, tuple)):
+            X = torch.cat(X, dim=1)
+        else:
+            raise ValueError(f"Unsupported type of X: {type(X)}")
+        # 标准化
         if self.should_normalize:
             X = (X - self.mean) / self.std
         solution = self.network_solution(X)
         return solution
+    
+    def init_net_res_input(self, X):
+        columns = []
+        for i in range(X.size(1)):
+            column = X[:, [i]]
+            column.requires_grad_(True)
+            columns.append(column)
+        return columns
     
     def net_res(self, X):
         NotImplementedError

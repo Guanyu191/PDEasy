@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 15:38:22
-LastEditTime: 2025-02-08 15:55:48
+LastEditTime: 2025-02-08 21:22:38
 '''
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,6 +10,7 @@ import os
 
 
 def plot_loss_from_logger(logger, figure_dir, show=True):
+    plt.rcParams.update({'font.size':18})
     log = logger.log
 
     fig = plt.figure(figsize=(9, 7), dpi=64)

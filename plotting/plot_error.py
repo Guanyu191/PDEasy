@@ -4,6 +4,7 @@ import os
 
 
 def plot_error_from_logger(logger, figure_dir, show=True):
+    plt.rcParams.update({'font.size':18})
     log = logger.log
 
     fig = plt.figure(figsize=(9, 7), dpi=64)
