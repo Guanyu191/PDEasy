@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 14:57:49
-LastEditTime: 2025-02-08 15:31:50
+LastEditTime: 2025-02-08 19:53:58
 '''
 import os
 import time
@@ -23,6 +23,7 @@ class Logger:
         self.print_interval = print_interval
         self.current_iter = 0
         self.start_time = time.time()
+        self.best_loss = np.inf
 
     def record(self, **kwargs):
         """Record the training information for each iteration."""
@@ -44,6 +45,7 @@ class Logger:
         # Print the logs if the iteration is a multiple of the print interval
         if self.current_iter % self.print_interval == 0:
             self._print_logs()
+            self.save()
 
         # Increment the iteration counter
         self.current_iter += 1
