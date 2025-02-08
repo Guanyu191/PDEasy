@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 13:30:02
-LastEditTime: 2025-02-08 20:29:31
+LastEditTime: 2025-02-08 22:56:29
 '''
 import torch
 import torch.nn as nn
@@ -61,7 +61,7 @@ if __name__ == '__main__':
     u = f(X)
     print(u)
 
-    pinn = PINN()
+    pinn = _PINN()
 
     # 1阶导
     # u_x = torch.autograd.grad(u, x, grad_outputs=torch.ones_like(u[:, [0]]), create_graph=True)[0]
