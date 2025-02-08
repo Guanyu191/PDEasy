@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 14:57:49
-LastEditTime: 2025-02-08 19:53:58
+LastEditTime: 2025-02-08 19:55:37
 '''
 import os
 import time
@@ -67,7 +67,7 @@ class Logger:
         """Load the logs from a file."""
         self.log = np.load(os.path.join(self.log_dir, 'log.npy'), allow_pickle=True).item()
 
-    def elapsed_time(self):
+    def print_elapsed_time(self):
         """Calculate and print the elapsed time since the start."""
         hours, minutes, seconds = elapsed_time(self.start_time, time.time())
         print(f"Elapsed time: {hours:.0f}h {minutes:.0f}m {seconds:.0f}s")
