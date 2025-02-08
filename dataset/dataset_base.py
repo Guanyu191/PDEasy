@@ -1,9 +1,15 @@
+'''
+Descripttion: 
+Author: Guanyu
+Date: 2025-02-08 13:26:51
+LastEditTime: 2025-02-08 14:14:49
+'''
 import torch
 
 
 class _Dataset():
     def __init__(self):
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.data_dict = {}  # data dictionary 将数据存放于字典
 
     def array2tensor(self):
