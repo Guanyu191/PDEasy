@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 11:26:26
-LastEditTime: 2025-02-09 17:31:55
+LastEditTime: 2025-02-09 17:52:27
 '''
 import torch
 from pinn.pinn_base import _PINN
@@ -35,9 +35,11 @@ class PINNForward(_PINN):
             X = (X - self.mean) / self.std
         solution = self.network_solution(X)
 
+        # 输出变换
+        solution = self.net_sol_output_transform(X, solution)
         return solution
     
-    def net_sol_output_transform(self, solution):
+    def net_sol_output_transform(self, X, solution):
         # 需要用户自行定义，默认无变换
         return solution
     

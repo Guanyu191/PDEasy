@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 18:39:32
-LastEditTime: 2025-02-09 17:37:57
+LastEditTime: 2025-02-09 18:20:28
 '''
 import os
 import numpy as np
@@ -30,11 +30,14 @@ LOG_DIR = './log'
 MODEL_DIR = './model'
 
 DOMAIN = (-1, 1, 0, 1)  # (x_min, x_max, t_min, t_max)
-N_RES = 2000
+N_RES = 10000
 N_BCS = 200
 N_ICS = 200
-N_ITERS = 10000
-NN_LAYERS = [2] + [20]*4 + [1]
+N_ITERS = 20000
+NN_LAYERS = [2] + [128]*4 + [1]
+W_RES = 1
+W_BCS = 1
+W_ICS = 1
 
 
 # --------------------------------------------
@@ -42,7 +45,7 @@ NN_LAYERS = [2] + [20]*4 + [1]
 # --------------------------------------------
 init_dir(DATA_DIR, FIGURE_DIR, LOG_DIR, MODEL_DIR)
 
-data = io.loadmat(os.path.join(DATA_DIR, 'Burgers_Sol.mat'))
+data = io.loadmat(os.path.join(DATA_DIR, 'AllenCahn_Sol.mat'))
 u = data['u']  # shape (N_t, N_x)
 x = data['x'].flatten()
 t = data['t'].flatten()
@@ -92,21 +95,27 @@ class PINN(PINNForward):
         x, t = columns
         u = self.net_sol([x, t])
 
-        u_x = self.grad(u, x, 1)
         u_t = self.grad(u, t, 1)
         u_xx = self.grad(u, x, 2)
-        res_pred = u_t + u * u_x - (0.01 / torch.pi) * u_xx
+        res_pred = u_t - 0.001 * u_xx - 5 * (u - u**3)
         return res_pred
-    
+
     def net_bcs(self, X):
         u = self.net_sol(X)
-        bcs_pred = u - 0
+        u_left = u[X[:, [0]] == -1]
+        u_right = u[X[:, [0]] == 1]
+        bcs_pred = u_left - u_right
         return bcs_pred
     
     def net_ics(self, X):
+        XXX = X[:, [0]]**2 * torch.cos(torch.pi * X[:, [0]])
         u = self.net_sol(X)
-        ics_pred = u + torch.sin(torch.pi * X[:, [0]])
+        ics_pred = u - X[:, [0]]**2 * torch.cos(torch.pi * X[:, [0]])
         return ics_pred
+    
+    def net_sol_output_transform(self, X, u):
+        # x^{2} \cos(\pi x) + t (1 - x^{2}) u
+        return X[:, [0]]**2 * torch.cos(torch.pi * X[:, [0]]) + X[:, [1]] * (1 - X[:, [0]]**2) * u
 
 
 # ---------------------------------------------------
@@ -115,11 +124,11 @@ class PINN(PINNForward):
 dataset = Dataset(DOMAIN)
 
 network = MLP(NN_LAYERS)
-pinn = PINN(network)
-pinn.mean, pinn.std = dataset.data_dict['mean'], dataset.data_dict['std']
+pinn = PINN(network, should_normalize=False)
+# pinn.mean, pinn.std = dataset.data_dict['mean'], dataset.data_dict['std']
 
 optimizer = optim.Adam(pinn.parameters(), lr=0.001)
-# scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.9, patience=500)
+scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.9, patience=500, verbose=True)
 
 log_keys = ['iter', 'loss', 'loss_res', 'loss_bcs', 'loss_ics', 'error_u']
 logger = Logger(LOG_DIR, log_keys, num_iters=N_ITERS, print_interval=100)
@@ -140,11 +149,11 @@ for it in range(N_ITERS):
     loss_bcs = torch.mean(pw_loss_bcs)
     loss_ics = torch.mean(pw_loss_ics)
         
-    loss = loss_res + loss_bcs + loss_ics
+    loss = W_RES*loss_res + W_BCS*loss_bcs + W_ICS*loss_ics
     
     loss.backward()                                         # 反向传播    
     optimizer.step()                                        # 更新网络参数
-    # scheduler.step(loss)                                    # 调整学习率
+    scheduler.step(loss)                                    # 调整学习率
 
     error_u, _ = relative_error(pinn, ref_data=(X, u), num_sample=500)
 
@@ -220,6 +229,6 @@ plot_solution_from_data(
 # --- 保存结果为 mat 文件 ---
 # --------------------------
 io.savemat(
-    os.path.join(DATA_DIR, 'Burgers_Sol_PINN.mat'),
+    os.path.join(DATA_DIR, 'AllenCahn_Sol_PINN.mat'),
     {'x':x, 't':t, 'u':u_pred}
 )
