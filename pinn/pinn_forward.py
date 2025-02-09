@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 11:26:26
-LastEditTime: 2025-02-08 21:50:10
+LastEditTime: 2025-02-09 13:57:33
 '''
 import torch
 from pinn.pinn_base import _PINN

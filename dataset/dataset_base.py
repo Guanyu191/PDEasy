@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 13:26:51
-LastEditTime: 2025-02-08 19:49:21
+LastEditTime: 2025-02-09 13:06:57
 '''
 import numpy as np
 import torch
@@ -33,7 +33,20 @@ class _Dataset():
         self.data_dict["mean"] = self.data_dict["X_res"].mean(axis=0)
         self.data_dict["std"] = self.data_dict["X_res"].std(axis=0)
 
-    def update_dataset(self):
+    def first_update(self, *args, **kwargs):
+        self.custom_update(*args, **kwargs)              # 加载/更新所有数据
+
+        self.statistic()                                 # 计算数据的统计信息，用作标准化
+        self.array2tensor()                              # 将数据转到 cuda
+
+    def update(self, *args, **kwargs):
+        self.tensor2array()
+
+        self.custom_update(*args, **kwargs)              # 加载/更新所有数据
+        
+        self.array2tensor()                              # 将数据转到 cuda
+
+    def custom_update(self, *args, **kwargs):
         NotImplementedError
 
     def external_data(self):

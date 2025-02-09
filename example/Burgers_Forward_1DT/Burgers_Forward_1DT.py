@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 18:39:32
-LastEditTime: 2025-02-08 22:20:00
+LastEditTime: 2025-02-09 14:25:48
 '''
 import os
 import numpy as np
@@ -15,14 +15,10 @@ import sys
 sys.path.append("../../")
 
 from dataset.rectangle import Dataset1DT
-from network.mlp import MLP
 from pinn.pinn_forward import PINNForward
-from utils.logger import Logger
-from utils.relative_error import relative_error
-from utils.init_dir import init_dir
-from plotting.plot_loss import plot_loss_from_logger
-from plotting.plot_error import plot_error_from_logger
-from plotting.plot_solution import plot_solution_from_data
+from network import MLP
+from utils import *
+from plotting import *
 
 
 # --------------
@@ -39,7 +35,6 @@ N_BCS = 200
 N_ICS = 200
 N_ITERS = 10000
 NN_LAYERS = [2] + [20]*4 + [1]
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 # --------------------------------------------
@@ -66,7 +61,7 @@ class DatasetBurgers(Dataset1DT):
     def __init__(self, domain):
         super().__init__(domain)
 
-    def update_dataset(self, n_res=N_RES, n_bcs=N_BCS, n_ics=N_ICS):
+    def custom_update(self, n_res=N_RES, n_bcs=N_BCS, n_ics=N_ICS):
         self.interior_random(n_res)
         self.boundary_random(n_bcs)
         self.initial_random(n_ics)
@@ -118,16 +113,13 @@ class PINNBurgers(PINNForward):
 # --- 初始化训练实例 dataset pinn optimizer logger ---
 # ---------------------------------------------------
 dataset = DatasetBurgers(DOMAIN)
-dataset.update_dataset()                             # 加载/更新所有数据
-dataset.statistic()                                  # 计算数据的统计信息，用作标准化
-dataset.array2tensor()                               # 将数据转到 cuda
 
 network = MLP(NN_LAYERS)
 pinn = PINNBurgers(network)
 pinn.mean, pinn.std = dataset.data_dict['mean'], dataset.data_dict['std']
-pinn = pinn.to(DEVICE)
 
-optimizer_adam = optim.Adam(pinn.parameters(), lr=0.001)
+optimizer = optim.Adam(pinn.parameters(), lr=0.001)
+# scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.9, patience=500)
 
 log_keys = ['iter', 'loss', 'loss_res', 'loss_bcs', 'loss_ics', 'error_u']
 logger = Logger(LOG_DIR, log_keys, num_iters=N_ITERS, print_interval=100)
@@ -151,7 +143,8 @@ for it in range(N_ITERS):
     loss = loss_res + loss_bcs + loss_ics
     
     loss.backward()                                         # 反向传播    
-    optimizer_adam.step()                                   # 更新网络参数
+    optimizer.step()                                        # 更新网络参数
+    # scheduler.step(loss)                                    # 调整学习率
 
     error_u, _ = relative_error(pinn, ref_data=(X, u), num_sample=500)
 
@@ -165,11 +158,8 @@ for it in range(N_ITERS):
     )
     
     if it % 100 == 0:
-        dataset.tensor2array()
-        dataset.update_dataset()                            # 加载/更新所有数据
-        dataset.array2tensor()                              # 将数据转到 cuda
+        dataset.update()
     
-                
     if loss.item() < best_loss:                             # 保存最优模型
         model_info = {
             'iter': it,
@@ -181,15 +171,18 @@ for it in range(N_ITERS):
         best_loss = loss.item()
 
 logger.print_elapsed_time()
+logger.save()
 
 
-# ------------------------------
-# --- 导入训练好的最优模型参数 ---
-# ------------------------------
+# -----------------------------------
+# --- 导入训练信息 以及最优模型参数 ---
+# -----------------------------------
+logger.load()
+
 model_info = torch.load(os.path.join(MODEL_DIR, 'model.pth'))
 pinn.network_solution.load_state_dict(model_info['nn_sol_state'])
 pinn.mean, pinn.std = model_info['mean'], model_info['std']
-pinn.eval();
+pinn.eval()
 
 
 # ----------------------------------
@@ -213,6 +206,9 @@ plot_solution_from_data(
 
     x_label='$x$',
     y_label='$t$',
+
+    x_ticks=np.linspace(-1, 1, 5),
+    y_ticks=np.linspace(0, 1, 5),
     
     title_left=r'Reference $u(x,t)$',
     title_middle=r'Predicted $u(x,t)$',

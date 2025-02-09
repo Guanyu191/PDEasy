@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-07 22:36:57
-LastEditTime: 2025-02-08 13:52:58
+LastEditTime: 2025-02-09 13:50:04
 FilePath: \PDEasy\dataset\rectangle.py
 '''
 import numpy as np
@@ -15,6 +15,7 @@ class Dataset1D(_Dataset):
     def __init__(self, domain):
         super().__init__()
         self.x_min, self.x_max = domain
+        self.first_update()
 
     def interior_random(self, n_res):
         """对内部随机采样"""
@@ -42,6 +43,7 @@ class Dataset1DT(_Dataset):
     def __init__(self, domain):
         super().__init__()
         self.x_min, self.x_max, self.t_min, self.t_max = domain
+        self.first_update()
 
     def interior_random(self, n_res):
         """对内部随机采样"""

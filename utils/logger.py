@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 14:57:49
-LastEditTime: 2025-02-08 21:14:48
+LastEditTime: 2025-02-09 14:20:50
 '''
 import os
 import time
@@ -37,9 +37,6 @@ class Logger:
             else:
                 # If the key is not in the log, initialize it
                 self.log[key] = [value]
-
-        # Check for empty lists in the logs
-        self._validate_logs()
 
         # Print the logs if the iteration is a multiple of the print interval
         if self.current_iter % self.print_interval == 0:

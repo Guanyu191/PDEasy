@@ -64,12 +64,12 @@ class MFF(nn.Module):
         
         # 网络初始化
         self.model_ = nn.Sequential()
-        mlp_layers_ = nn_layers[1:-1]
-        for i in range(len(mlp_layers_) - 1):
-            self.model_.add_module(f'fc{i+1}', nn.Linear(mlp_layers_[i], mlp_layers_[i + 1], bias=True))
+        nn_layers_ = nn_layers[1:-1]
+        for i in range(len(nn_layers_) - 1):
+            self.model_.add_module(f'fc{i+1}', nn.Linear(nn_layers_[i], nn_layers_[i + 1], bias=True))
             self.model_.add_module(f'act{i+1}', init_network_activation_function(act_type))
 
-        self.last_layer_ = nn.Linear(2 * mlp_layers_[-1], nn_layers[-1], bias=False)
+        self.last_layer_ = nn.Linear(2 * nn_layers_[-1], nn_layers[-1], bias=False)
 
         self.apply(lambda module: init_network_weights(module, init_type))
 
@@ -91,46 +91,49 @@ class MFF(nn.Module):
 
 
 class STFF(nn.Module):
-    def __init__(self, mlp_layers, sigma_x=200, sigma_t=1):
-        """
-        Spatio Temporal Fourier Feature Model
-        模型说明：
-            mlp_layers[0] 是原始的 [x, t] 输入
-            [x, t] 经过 Fourier Embedding 变为 H_x 和 H_t
-            其中 W_x 和 W_t 是 Fourier Embedding 的参数
-            进而 H_x 和 H_t 先后传入同一个网络 (例如 MLP)
-            最后将 H = H_x * H_t 作为融合特征传给最后的线性层返回 u
-        ---
-        参数说明：
-            mlp_layers: 神经网络的层结构
-                例如 [2, 100, 100, 100, 1]
-                但是 mlp_layers[1] 必须是偶数
-            sigma_x: 傅里叶特征的参数
-                空间域一般取 1, 20, 50, 100, 200, ...
-                sigma_x 越大，学习的空间域的频率越高
-            sigma_t: 傅里叶特征的参数
-                时间域一般取 1, ...
-                sigma_t 越大，学习的时间域的频率越高
-        ---
-        示例：
-            NN_LAYERS = [2, 100, 100, 100, 1]
-            network = STMFF(NN_LAYERS)
-        """
+    r"""
+    Spatio Temporal Fourier Feature Model
+    模型说明：
+        nn_layers[0] 是原始的 [x, t] 输入
+        [x, t] 经过 Fourier Embedding 变为 H_x 和 H_t
+        其中 W_x 和 W_t 是 Fourier Embedding 的参数
+        进而 H_x 和 H_t 先后传入同一个网络 (例如 MLP)
+        最后将 H = H_x * H_t 作为融合特征传给最后的线性层返回 u
+    ---
+    参数说明：
+        nn_layers: 神经网络的层结构
+            例如 [2, 100, 100, 100, 1]
+            但是 nn_layers[1] 必须是偶数
+        sigma_x: 傅里叶特征的参数
+            空间域一般取 1, 20, 50, 100, 200, ...
+            sigma_x 越大，学习的空间域的频率越高
+        sigma_t: 傅里叶特征的参数
+            时间域一般取 1, ...
+            sigma_t 越大，学习的时间域的频率越高
+    ---
+    示例：
+        NN_LAYERS = [2, 100, 100, 100, 1]
+        network = STMFF(NN_LAYERS)
+    """
+    def __init__(self, nn_layers, act_type='tanh', init_type='default',
+                 sigma_x=1, sigma_t=10):
         super(STFF, self).__init__()
 
         # 傅里叶特征初始化
         self.sigma_x = sigma_x
         self.sigma_t = sigma_t
-        self.W_x = nn.Parameter(torch.randn(1, mlp_layers[1] // 2) * sigma_x, requires_grad=False)
-        self.W_t = nn.Parameter(torch.randn(1, mlp_layers[1] // 2) * sigma_t, requires_grad=False)
+        self.W_x = nn.Parameter(torch.randn(1, nn_layers[1] // 2) * sigma_x, requires_grad=False)
+        self.W_t = nn.Parameter(torch.randn(1, nn_layers[1] // 2) * sigma_t, requires_grad=False)
         
         # 网络初始化
         self.model_ = nn.Sequential()
-        mlp_layers_ = mlp_layers[1:-1]
-        for i in range(len(mlp_layers_) - 1):
-            self.model_.add_module(f'fc{i + 1}', nn.Linear(mlp_layers_[i], mlp_layers_[i + 1], bias=True))
-            self.model_.add_module(f'act{i + 1}', nn.Tanh())
-        self.last_layer_ = nn.Linear(mlp_layers_[-1], mlp_layers[-1], bias=False)
+        nn_layers_ = nn_layers[1:-1]
+        for i in range(len(nn_layers_) - 1):
+            self.model_.add_module(f'fc{i + 1}', nn.Linear(nn_layers_[i], nn_layers_[i + 1], bias=True))
+            self.model_.add_module(f'act{i + 1}', init_network_activation_function(act_type))
+        self.last_layer_ = nn.Linear(nn_layers_[-1], nn_layers[-1], bias=False)
+
+        self.apply(lambda module: init_network_weights(module, init_type))
 
     def forward(self, X):
         x, t = X[:, [0]], X[:, [1]]
@@ -153,52 +156,53 @@ class STFF(nn.Module):
 
 
 class STMFF(nn.Module):
-    def __init__(self, mlp_layers, sigma_x=1, sigma_t_1=1, sigma_t_2=10):
-        """
-        Spatio Temporal Multiscale Fourier Feature Model
-        模型说明：
-            mlp_layers[0] 是原始的 [x, t] 输入
-            [x, t] 经过 Fourier Embedding 变为 H_x 和 H_t_1, H_t_2
-            其中 W_x 和 W_t_1, W_t_2 是 Fourier Embedding 的参数
-            进而 H_x 和 H_t_1, H_t_2 先后传入同一个网络 (例如 MLP)
-            最后将 H_1 = H_x * H_t_1, H_2 = H_x * H_t_2 作为融合特征
-            拼接 H = [H_1, H_2] 传给最后的线性层返回 u
-        ---
-        参数说明：
-            mlp_layers: 神经网络的层结构
-                例如 [2, 100, 100, 100, 1]
-                但是 mlp_layers[1] 必须是偶数
-            sigma_x: 傅里叶特征的参数
-                空间域一般取 1, 20, 50, 100, 200, ...
-                sigma_x 越大，学习的空间域的频率越高
-            sigma_t_1: 傅里叶特征的参数
-                时间域一般取 1, ...
-                sigma_t_1 越大，学习的时间域的频率越高
-            sigma_t_2: 傅里叶特征的参数
-                时间域一般取 10, ...
-                sigma_t_2 越大，学习的时间域的频率越高
-        ---
-        示例：
-            NN_LAYERS = [2, 100, 100, 100, 1]
-            network = STMFF(NN_LAYERS)
-        """
+    r"""
+    Spatio Temporal Multiscale Fourier Feature Model
+    模型说明：
+        nn_layers[0] 是原始的 [x, t] 输入
+        [x, t] 经过 Fourier Embedding 变为 H_x 和 H_t_1, H_t_2
+        其中 W_x 和 W_t_1, W_t_2 是 Fourier Embedding 的参数
+        进而 H_x 和 H_t_1, H_t_2 先后传入同一个网络 (例如 MLP)
+        最后将 H_1 = H_x * H_t_1, H_2 = H_x * H_t_2 作为融合特征
+        拼接 H = [H_1, H_2] 传给最后的线性层返回 u
+    ---
+    参数说明：
+        nn_layers: 神经网络的层结构
+            例如 [2, 100, 100, 100, 1]
+            但是 nn_layers[1] 必须是偶数
+        sigma_x: 傅里叶特征的参数
+            空间域一般取 1, 20, 50, 100, 200, ...
+            sigma_x 越大，学习的空间域的频率越高
+        sigma_t_1: 傅里叶特征的参数
+            时间域一般取 1, ...
+            sigma_t_1 越大，学习的时间域的频率越高
+        sigma_t_2: 傅里叶特征的参数
+            时间域一般取 10, ...
+            sigma_t_2 越大，学习的时间域的频率越高
+    ---
+    示例：
+        NN_LAYERS = [2, 100, 100, 100, 1]
+        network = STMFF(NN_LAYERS)
+    """
+    def __init__(self, nn_layers, act_type='tanh', init_type='default', 
+                 sigma_x=1, sigma_t_1=1, sigma_t_2=10):
         super(STMFF, self).__init__()
 
         # 傅里叶特征初始化
         self.sigma_x = sigma_x
         self.sigma_t_1 = sigma_t_1
         self.sigma_t_2 = sigma_t_2
-        self.W_x = nn.Parameter(torch.randn(1, mlp_layers[1] // 2) * sigma_x, requires_grad=False)
-        self.W_t_1 = nn.Parameter(torch.randn(1, mlp_layers[1] // 2) * sigma_t_1, requires_grad=False)
-        self.W_t_2 = nn.Parameter(torch.randn(1, mlp_layers[1] // 2) * sigma_t_2, requires_grad=False)
+        self.W_x = nn.Parameter(torch.randn(1, nn_layers[1] // 2) * sigma_x, requires_grad=False)
+        self.W_t_1 = nn.Parameter(torch.randn(1, nn_layers[1] // 2) * sigma_t_1, requires_grad=False)
+        self.W_t_2 = nn.Parameter(torch.randn(1, nn_layers[1] // 2) * sigma_t_2, requires_grad=False)
         
         # 网络初始化
         self.model_ = nn.Sequential()
-        mlp_layers_ = mlp_layers[1:-1]
-        for i in range(len(mlp_layers_) - 1):
-            self.model_.add_module(f'fc{i + 1}', nn.Linear(mlp_layers_[i], mlp_layers_[i + 1], bias=True))
+        nn_layers_ = nn_layers[1:-1]
+        for i in range(len(nn_layers_) - 1):
+            self.model_.add_module(f'fc{i + 1}', nn.Linear(nn_layers_[i], nn_layers_[i + 1], bias=True))
             self.model_.add_module(f'act{i + 1}', nn.Tanh())
-        self.last_layer_ = nn.Linear(2 * mlp_layers_[-1], mlp_layers[-1], bias=False)
+        self.last_layer_ = nn.Linear(2 * nn_layers_[-1], nn_layers[-1], bias=False)
 
     def forward(self, X):
         x, t = X[:, [0]], X[:, [1]]

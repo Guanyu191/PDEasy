@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 18:39:32
-LastEditTime: 2025-02-08 22:18:07
+LastEditTime: 2025-02-09 14:05:11
 '''
 import os
 import numpy as np
@@ -15,15 +15,10 @@ import sys
 sys.path.append("../../")
 
 from dataset.rectangle import Dataset1D
-from network.mlp import MLP
-from network.ffn import MFF
 from pinn.pinn_forward import PINNForward
-from utils.logger import Logger
-from utils.relative_error import relative_error
-from utils.init_dir import init_dir
-from plotting.plot_loss import plot_loss_from_logger
-from plotting.plot_error import plot_error_from_logger
-from plotting.plot_solution import plot_solution_from_data
+from network import MFF
+from utils import *
+from plotting import *
 
 
 # --------------
@@ -35,10 +30,9 @@ LOG_DIR = './log'
 MODEL_DIR = './model'
 
 DOMAIN = (0, 1)  # (x_min, x_max)
-N_RES = 200
+N_RES = 400
 N_ITERS = 10000
 NN_LAYERS = [2] + [100]*2 + [1]
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 # --------------------------------------------
@@ -57,11 +51,11 @@ X = x.reshape(-1, 1)
 # -------------------------------
 # --- 方程数据集 用于训练点采样 ---
 # -------------------------------
-class DatasetPoisson(Dataset1D):
+class Dataset(Dataset1D):
     def __init__(self, domain):
         super().__init__(domain)
 
-    def update_dataset(self, n_res=N_RES):
+    def custom_update(self, n_res=N_RES):
         self.interior_random(n_res)
         self.boundary()
 
@@ -69,7 +63,7 @@ class DatasetPoisson(Dataset1D):
 # -----------------
 # --- PINN 模型 ---
 # -----------------
-class PINNPoisson(PINNForward):
+class PINN(PINNForward):
     def __init__(self, network_solution, should_normalize=True):
         super().__init__(network_solution, should_normalize)
 
@@ -103,17 +97,14 @@ class PINNPoisson(PINNForward):
 # ---------------------------------------------------
 # --- 初始化训练实例 dataset pinn optimizer logger ---
 # ---------------------------------------------------
-dataset = DatasetPoisson(DOMAIN)
-dataset.update_dataset()                             # 加载/更新所有数据
-dataset.statistic()                                  # 计算数据的统计信息，用作标准化
-dataset.array2tensor()                               # 将数据转到 cuda
+dataset = Dataset(DOMAIN)
 
 network = MFF(NN_LAYERS)
-pinn = PINNPoisson(network)
+pinn = PINN(network)
 pinn.mean, pinn.std = dataset.data_dict['mean'], dataset.data_dict['std']
-pinn = pinn.to(DEVICE)
 
-optimizer_adam = optim.Adam(pinn.parameters(), lr=0.001)
+optimizer = optim.Adam(pinn.parameters(), lr=0.001)
+scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.9, patience=500)
 
 log_keys = ['iter', 'loss', 'loss_res', 'loss_bcs', 'error_u']
 logger = Logger(LOG_DIR, log_keys, num_iters=N_ITERS, print_interval=100)
@@ -135,9 +126,10 @@ for it in range(N_ITERS):
     loss = loss_res + loss_bcs
     
     loss.backward()                                         # 反向传播    
-    optimizer_adam.step()                                   # 更新网络参数
+    optimizer.step()                                        # 更新网络参数
+    scheduler.step(loss)                                    # 调整学习率
 
-    error_u, _ = relative_error(pinn, ref_data=(X, u), num_sample=500)
+    error_u, _ = relative_error(pinn, ref_data=(X, u), num_sample=50)
 
     logger.record(                                          # 保存训练信息
         iter=it,                                            # 每隔一定次数自动打印
@@ -147,11 +139,8 @@ for it in range(N_ITERS):
         error_u=error_u
     )
     
-    if it % 100 == 0:
-        dataset.tensor2array()
-        dataset.update_dataset()                            # 加载/更新所有数据
-        dataset.array2tensor()                              # 将数据转到 cuda
-    
+    if it % 1000 == 0:
+        dataset.update()
                 
     if loss.item() < best_loss:                             # 保存最优模型
         model_info = {
@@ -164,15 +153,18 @@ for it in range(N_ITERS):
         best_loss = loss.item()
 
 logger.print_elapsed_time()
+logger.save()
 
 
-# ------------------------------
-# --- 导入训练好的最优模型参数 ---
-# ------------------------------
+# -----------------------------------
+# --- 导入训练信息 以及最优模型参数 ---
+# -----------------------------------
+logger.load()
+
 model_info = torch.load(os.path.join(MODEL_DIR, 'model.pth'))
 pinn.network_solution.load_state_dict(model_info['nn_sol_state'])
 pinn.mean, pinn.std = model_info['mean'], model_info['std']
-pinn.eval();
+pinn.eval()
 
 
 # ----------------------------------
@@ -195,6 +187,8 @@ plot_solution_from_data(
 
     x_label='$x$',
     y_label='$u$',
+
+    y_ticks=np.linspace(-1, 1, 5),
     
     title_left=r'Solution $u(x)$',
     title_right=r'Absolute error'

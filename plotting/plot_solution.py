@@ -117,7 +117,6 @@ def _plot_solution_from_data_1D(figure_dir, **kwargs):
     sol = kwargs['sol']
     sol_pred = kwargs['sol_pred']
 
-    cmap = kwargs.get('cmap', 'jet')
     sol_min = kwargs.get('sol_min', sol.min())
     sol_max = kwargs.get('sol_max', sol.max())
 
@@ -136,6 +135,8 @@ def _plot_solution_from_data_1D(figure_dir, **kwargs):
     dpi = kwargs.get('dpi', 64)
     show = kwargs.get('show', True)
 
+    e = (sol_max - sol_min) * 0.05
+
 
     fig = plt.figure(figsize=(12, 5))
     axes = fig.subplots(1, 2)
@@ -147,7 +148,7 @@ def _plot_solution_from_data_1D(figure_dir, **kwargs):
     ax.set_xlabel(x_label)
     ax.set_ylabel(y_label)
     ax.set_title(title_left)
-    ax.set_ylim(sol_min, sol_max)
+    ax.set_ylim(sol_min-e, sol_max+e)
     ax.set_xticks(x_ticks)
     ax.set_yticks(y_ticks)
     ax.set_aspect(1./ax.get_data_ratio())
