@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 18:39:32
-LastEditTime: 2025-02-09 16:13:55
+LastEditTime: 2025-02-09 17:21:26
 '''
 import os
 import numpy as np
@@ -14,9 +14,9 @@ import torch.optim as optim
 import sys
 sys.path.append("../../")
 
-from dataset.rectangle import Dataset1D
+from dataset.rectangle import Dataset2D
 from pinn.pinn_forward import PINNForward
-from network import MFF1D
+from network import MFF2D
 from utils import *
 from plotting import *
 
@@ -29,10 +29,11 @@ FIGURE_DIR = './figure'
 LOG_DIR = './log'
 MODEL_DIR = './model'
 
-DOMAIN = (0, 1)  # (x_min, x_max)
-N_RES = 400
+DOMAIN = (-1, 1, -1, 1)  # (x_min, x_max, y_min, y_max)
+N_RES = 2000
+N_BCS = 200
 N_ITERS = 10000
-NN_LAYERS = [1] + [100]*2 + [1]
+NN_LAYERS = [2] + [50]*4 + [1]
 
 
 # --------------------------------------------
@@ -40,24 +41,28 @@ NN_LAYERS = [1] + [100]*2 + [1]
 # --------------------------------------------
 init_dir(DATA_DIR, FIGURE_DIR, LOG_DIR, MODEL_DIR)
 
-data = io.loadmat(os.path.join(DATA_DIR, 'Poisson_Sol.mat'))
-u = data['u'].flatten()  # shape (N_x,)
+data = io.loadmat(os.path.join(DATA_DIR, 'Helmholtz_Sol.mat'))
+u = data['u']  # shape (N_y, N_x)
 x = data['x'].flatten()
+y = data['y'].flatten()
 
 u_shape = u.shape
-X = x.reshape(-1, 1)
+xx, yy = np.meshgrid(x, y)
+xx, yy, u = xx.flatten(), yy.flatten(), u.flatten()
+
+X = np.stack([xx, yy], axis=1)
 
 
 # -------------------------------
 # --- 方程数据集 用于训练点采样 ---
 # -------------------------------
-class Dataset(Dataset1D):
+class Dataset(Dataset2D):
     def __init__(self, domain):
         super().__init__(domain)
 
-    def custom_update(self, n_res=N_RES):
+    def custom_update(self, n_res=N_RES, n_bcs=N_BCS):
         self.interior_random(n_res)
-        self.boundary()
+        self.boundary_random(n_bcs)
 
 
 # -----------------
@@ -81,11 +86,17 @@ class PINN(PINNForward):
     
     def net_res(self, X):
         columns = self.init_net_res_input(X)
-        x = columns
-        u = self.net_sol(x)
+        x, y = columns
+        u = self.net_sol([x, y])
 
         u_xx = self.grad(u, x, 2)
-        res_pred = u_xx + (2*torch.pi)**2 * torch.sin(2*torch.pi*X) + 0.1 * (50*torch.pi)**2 * torch.sin(50*torch.pi*X)
+        u_yy = self.grad(u, y, 2)
+
+        a1, a2, k, w = 1, 4, 1, 1
+        q = -(a1 * torch.pi) ** 2 * torch.sin(a1 * torch.pi * x) * torch.sin(a2 * torch.pi * y)
+        q += -(a2 * torch.pi) ** 2 * torch.sin(a1 * torch.pi * x) * torch.sin(a2 * torch.pi * y)
+        q += k ** 2 * torch.sin(a1 * torch.pi * x) * torch.sin(a2 * torch.pi * y) * w
+        res_pred = u_xx + u_yy + k**2 * u - q
         return res_pred
     
     def net_bcs(self, X):
@@ -99,12 +110,12 @@ class PINN(PINNForward):
 # ---------------------------------------------------
 dataset = Dataset(DOMAIN)
 
-network = MFF1D(NN_LAYERS)
+network = MFF2D(NN_LAYERS, sigma_x_2=5, sigma_y_2=10)
 pinn = PINN(network)
 pinn.mean, pinn.std = dataset.data_dict['mean'], dataset.data_dict['std']
 
 optimizer = optim.Adam(pinn.parameters(), lr=0.001)
-scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.9, patience=500)
+scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.9, patience=500, verbose=True)
 
 log_keys = ['iter', 'loss', 'loss_res', 'loss_bcs', 'error_u']
 logger = Logger(LOG_DIR, log_keys, num_iters=N_ITERS, print_interval=100)
@@ -129,7 +140,7 @@ for it in range(N_ITERS):
     optimizer.step()                                        # 更新网络参数
     scheduler.step(loss)                                    # 调整学习率
 
-    error_u, _ = relative_error(pinn, ref_data=(X, u), num_sample=50)
+    error_u, _ = relative_error(pinn, ref_data=(X, u), num_sample=500)
 
     logger.record(                                          # 保存训练信息
         iter=it,                                            # 每隔一定次数自动打印
@@ -139,9 +150,9 @@ for it in range(N_ITERS):
         error_u=error_u
     )
     
-    if it % 1000 == 0:
+    if it % 100 == 0:
         dataset.update()
-                
+    
     if loss.item() < best_loss:                             # 保存最优模型
         model_info = {
             'iter': it,
@@ -181,16 +192,19 @@ with open(os.path.join(LOG_DIR, 'relative_error.txt'), 'w') as f_obj:
 
 plot_solution_from_data(
     FIGURE_DIR, 
-    x_grid=x.reshape(u_shape),
+    x_grid=xx.reshape(u_shape),
+    y_grid=yy.reshape(u_shape),
     sol=u.reshape(u_shape),
     sol_pred=u_pred.reshape(u_shape),
 
     x_label='$x$',
-    y_label='$u$',
+    y_label='$y$',
 
+    x_ticks=np.linspace(-1, 1, 5),
     y_ticks=np.linspace(-1, 1, 5),
     
-    title_left=r'Solution $u(x)$',
+    title_left=r'Reference $u(x,y)$',
+    title_middle=r'Predicted $u(x,y)$',
     title_right=r'Absolute error'
 )
 
@@ -199,6 +213,6 @@ plot_solution_from_data(
 # --- 保存结果为 mat 文件 ---
 # --------------------------
 io.savemat(
-    os.path.join(DATA_DIR, 'Poisson_Sol_PINN.mat'),
-    {'x':x, 'u':u_pred}
+    os.path.join(DATA_DIR, 'Helmholtz_Sol_PINN.mat'),
+    {'x':x, 'y':y, 'u':u_pred}
 )

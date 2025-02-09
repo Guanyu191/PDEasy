@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 18:39:32
-LastEditTime: 2025-02-09 14:25:48
+LastEditTime: 2025-02-09 14:31:29
 '''
 import os
 import numpy as np
@@ -57,7 +57,7 @@ X = np.stack([xx, tt], axis=1)
 # -------------------------------
 # --- 方程数据集 用于训练点采样 ---
 # -------------------------------
-class DatasetBurgers(Dataset1DT):
+class Dataset(Dataset1DT):
     def __init__(self, domain):
         super().__init__(domain)
 
@@ -70,7 +70,7 @@ class DatasetBurgers(Dataset1DT):
 # -----------------
 # --- PINN 模型 ---
 # -----------------
-class PINNBurgers(PINNForward):
+class PINN(PINNForward):
     def __init__(self, network_solution, should_normalize=True):
         super().__init__(network_solution, should_normalize)
 
@@ -112,10 +112,10 @@ class PINNBurgers(PINNForward):
 # ---------------------------------------------------
 # --- 初始化训练实例 dataset pinn optimizer logger ---
 # ---------------------------------------------------
-dataset = DatasetBurgers(DOMAIN)
+dataset = Dataset(DOMAIN)
 
 network = MLP(NN_LAYERS)
-pinn = PINNBurgers(network)
+pinn = PINN(network)
 pinn.mean, pinn.std = dataset.data_dict['mean'], dataset.data_dict['std']
 
 optimizer = optim.Adam(pinn.parameters(), lr=0.001)
