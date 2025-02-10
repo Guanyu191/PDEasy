@@ -80,7 +80,7 @@ class PINN(PINNForward):
         return loss_dict
     
     def net_res(self, X):
-        columns = self.init_net_res_input(X)
+        columns = self.split_X_columns_and_require_grad(X)
         x = columns
         u = self.net_sol(x)
 
@@ -129,7 +129,7 @@ for it in range(N_ITERS):
     optimizer.step()                                        # 更新网络参数
     scheduler.step(loss)                                    # 调整学习率
 
-    error_u, _ = relative_error(pinn, ref_data=(X, u), num_sample=50)
+    error_u, _ = relative_error_of_solution(pinn, ref_data=(X, u), num_sample=50)
 
     logger.record(                                          # 保存训练信息
         iter=it,                                            # 每隔一定次数自动打印
@@ -173,7 +173,7 @@ pinn.eval()
 plot_loss_from_logger(logger, FIGURE_DIR, show=True)
 plot_error_from_logger(logger, FIGURE_DIR, show=True)
 
-error_u, u_pred = relative_error(pinn, ref_data=(X, u))
+error_u, u_pred = relative_error_of_solution(pinn, ref_data=(X, u))
 
 print('Relative l2 error of u: {:.3e}'.format(error_u))
 with open(os.path.join(LOG_DIR, 'relative_error.txt'), 'w') as f_obj:

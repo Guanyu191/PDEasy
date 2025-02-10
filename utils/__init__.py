@@ -1,3 +1,3 @@
-from .logger import Logger
-from .relative_error import relative_error
-from .init_dir import init_dir
+from .logger import *
+from .relative_error import *
+from .init_dir import *

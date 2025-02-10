@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 11:26:26
-LastEditTime: 2025-02-09 17:52:27
+LastEditTime: 2025-02-10 17:46:28
 '''
 import torch
 from pinn.pinn_base import _PINN
@@ -22,40 +22,39 @@ class PINNForward(_PINN):
         NotImplementedError
 
     def net_sol(self, X):
-        # 判断 X 的类型
+        # 判断 X 的类型，支持 Tensor 和 list/tuple
         if isinstance(X, torch.Tensor):
             pass
         elif isinstance(X, (list, tuple)):
-            X = torch.cat(X, dim=1)
+            X = self.cat_columns(X)
         else:
-            raise ValueError(f"Unsupported type of X: {type(X)}")
+            raise
         
         # 标准化
         if self.should_normalize:
             X = (X - self.mean) / self.std
         solution = self.network_solution(X)
 
+        # 以单列的输出形式给到 output_transform 函数
+        X = self.split_columns(X)
+        solution = self.split_columns(solution)
+
         # 输出变换
         solution = self.net_sol_output_transform(X, solution)
+
+        # 确保以单列的输出形式返回
+        if isinstance(solution, torch.Tensor):
+            solution = self.split_columns(solution)
+        elif isinstance(solution, (list, tuple)):
+            pass
+        else:
+            raise
         return solution
     
     def net_sol_output_transform(self, X, solution):
         # 需要用户自行定义，默认无变换
         return solution
-    
-    def init_net_res_input(self, X):
-        num_columns = X.size(1)
-        if num_columns > 1:
-            columns = []
-            for i in range(num_columns):
-                column = X[:, [i]]
-                column.requires_grad_(True)
-                columns.append(column)
-            return columns
-        elif num_columns == 1:
-            X.requires_grad_(True)
-            return X
-    
+        
     def net_res(self, X):
         NotImplementedError
 

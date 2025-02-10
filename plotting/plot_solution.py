@@ -57,6 +57,7 @@ def _plot_solution_from_data_2D(figure_dir, **kwargs):
     x_ticks = kwargs.get('x_ticks', np.linspace(x_min, x_max, 5))
     y_ticks = kwargs.get('y_ticks', np.linspace(y_min, y_max, 5))
 
+    figure_name = kwargs.get('figure_name', 'Sol_PINN.png')
     dpi = kwargs.get('dpi', 64)
     show = kwargs.get('show', True)
 
@@ -101,7 +102,7 @@ def _plot_solution_from_data_2D(figure_dir, **kwargs):
     ax.set_aspect(1./ax.get_data_ratio())
 
     plt.tight_layout()
-    plt.savefig(os.path.join(figure_dir, 'Sol_PINN.png'), dpi=dpi, bbox_inches='tight')
+    plt.savefig(os.path.join(figure_dir, figure_name), dpi=dpi, bbox_inches='tight')
 
     plt.show() if show else plt.close()
 
@@ -132,6 +133,7 @@ def _plot_solution_from_data_1D(figure_dir, **kwargs):
     x_ticks = kwargs.get('x_ticks', np.linspace(x_min, x_max, 5))
     y_ticks = kwargs.get('y_ticks', np.linspace(sol_min, sol_max, 5))
 
+    figure_name = kwargs.get('figure_name', 'Sol_PINN.png')
     dpi = kwargs.get('dpi', 64)
     show = kwargs.get('show', True)
 
@@ -166,5 +168,5 @@ def _plot_solution_from_data_1D(figure_dir, **kwargs):
     ax.grid()
 
     plt.tight_layout()
-    plt.savefig(os.path.join(figure_dir, 'Sol_PINN.png'), dpi=dpi, bbox_inches='tight')
+    plt.savefig(os.path.join(figure_dir, figure_name), dpi=dpi, bbox_inches='tight')
     plt.show() if show else plt.close()

@@ -2,10 +2,12 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 13:30:02
-LastEditTime: 2025-02-08 22:56:29
+LastEditTime: 2025-02-10 17:45:57
 '''
 import torch
 import torch.nn as nn
+
+from typing import List
 
 
 class _PINN(nn.Module):
@@ -32,6 +34,40 @@ class _PINN(nn.Module):
         return torch.autograd.grad(outputs, inputs, 
                                    grad_outputs=torch.ones_like(outputs), 
                                    create_graph=True)[0]
+    
+    def split_columns(self, X: torch.Tensor):
+        # 对于有多列的 X，逐列拆分
+        num_columns = X.shape[1]
+        if num_columns == 1:
+            pass
+        elif num_columns > 1:
+            X = [X[:, [i]] for i in range(num_columns)]
+        else:
+            raise
+        return X
+    
+    def cat_columns(self, X: List[torch.Tensor]):
+        # 对于有多列的 X，逐列拼接
+        num_columns = len(X)
+        if num_columns == 1:
+            pass
+        elif num_columns > 1:
+            X = torch.cat(X, dim=1)
+        else:
+            raise
+        return X
+    
+    def split_X_columns_and_require_grad(self, X: torch.Tensor):
+        # 对于有多列的 X，逐列 requires_grad_ 以便求偏导
+        num_columns = X.shape[1]
+        if num_columns == 1:
+            X.requires_grad_(True)
+        elif num_columns > 1:
+            X = [X[:, [i]].requires_grad_(True) for i in range(num_columns)]
+        else:
+            raise
+        return X
+
 
 
 if __name__ == '__main__':
