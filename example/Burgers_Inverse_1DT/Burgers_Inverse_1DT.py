@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 18:39:32
-LastEditTime: 2025-02-10 23:01:10
+LastEditTime: 2025-02-11 12:12:40
 '''
 import os
 import numpy as np
@@ -30,16 +30,16 @@ LOG_DIR = './log'
 MODEL_DIR = './model'
 
 DOMAIN = (-8, 8, 0, 10)  # (x_min, x_max, t_min, t_max)
-N_X_RES = 80
-N_T_RES = 50
-N_OBS = 4000
-N_ITERS = 200000
-NN_LAYERS = [2] + [128]*6 + [1]
+N_X_RES = 50
+N_T_RES = 40
+N_OBS = 1000
+N_ITERS = 20000
+NN_LAYERS = [2] + [80]*4 + [1]
 SUB_NN_LAYERS = [1] + [40]*4 + [2]
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-W_RES = 100
-W_OBS = 100
+W_RES = 1
+W_OBS = 1
 
 
 # --------------------------------------------
@@ -113,8 +113,7 @@ class PINN(PINNInverse):
         return loss_dict
     
     def net_res(self, X):
-        columns = self.split_X_columns_and_require_grad(X)
-        x, t = columns
+        x, t = self.split_X_columns_and_require_grad(X)
         u = self.net_sol([x, t])
 
         u_x = self.grad(u, x, 1)
@@ -141,24 +140,23 @@ class PINN(PINNInverse):
 # ---------------------------------------------------
 dataset = Dataset(DOMAIN)
 
-network = ModifiedMLP(NN_LAYERS)
-sub_network = ModifiedMLP(SUB_NN_LAYERS)
+network = MLP(NN_LAYERS)
+sub_network = MLP(SUB_NN_LAYERS)
 pinn = PINN(network, sub_network)
 pinn.mean, pinn.std = dataset.data_dict['mean'], dataset.data_dict['std']
 
 optimizer = optim.Adam(pinn.network_solution.parameters(), lr=1e-3)
 sub_optimizer = optim.Adam(pinn.network_parameter.parameters(), lr=1e-3)
-scheduler = optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.8, verbose=True)
-sub_scheduler = optim.lr_scheduler.ExponentialLR(sub_optimizer, gamma=0.9, verbose=True)
 
 log_keys = ['iter', 'loss', 'loss_res', 'loss_obs', 'error_u', 'error_lam_1', 'error_lam_2']
-logger = Logger(LOG_DIR, log_keys, num_iters=N_ITERS, print_interval=1000)
+logger = Logger(LOG_DIR, log_keys, num_iters=N_ITERS, print_interval=100)
 
 # ---------------------------------
 # --- 开始训练 打印并保存训练信息 ---
 # ---------------------------------
 best_loss = np.inf
 for it in range(N_ITERS):
+    pinn.train()
     pinn.zero_grad()                                        # 清除梯度
     loss_dict = pinn(dataset.data_dict)                     # 计算 point-wise loss
     
@@ -173,13 +171,13 @@ for it in range(N_ITERS):
     loss.backward()                                         # 反向传播    
     optimizer.step()                                        # 更新网络参数
     sub_optimizer.step()
-    # scheduler.step(loss)                                    # 调整学习率
 
     error_u, _ = relative_error_of_solution(pinn, ref_data=(X, u), num_sample=500)
-    error_param, param_pred = relative_error_of_parameter(pinn, (t, (lam_1, lam_2)), column_index=-1)
+    error_param, param_pred = relative_error_of_parameter(
+        pinn, ref_data=(t, (lam_1, lam_2)), num_sample=50, column_index=-1
+    )
     error_lam_1, error_lam_2 = error_param
     lam_1_pred, lam_2_pred = param_pred
-    e = np.linalg.norm(lam_1_pred - lam_1) / np.linalg.norm(lam_1)
 
     logger.record(                                          # 保存训练信息
         iter=it,                                            # 每隔一定次数自动打印
@@ -190,10 +188,6 @@ for it in range(N_ITERS):
         error_lam_1=error_lam_1,
         error_lam_2=error_lam_2
     )
-    
-    if (it + 1) % 20000 == 0:
-        scheduler.step()
-        sub_scheduler.step()
     
     if loss.item() < best_loss:                             # 保存最优模型
         model_info = {
@@ -232,7 +226,6 @@ error_u, u_pred = relative_error_of_solution(pinn, ref_data=(X, u))
 error_param, param_pred = relative_error_of_parameter(pinn, (t, (lam_1, lam_2)), column_index=-1)
 error_lam_1, error_lam_2 = error_param
 lam_1_pred, lam_2_pred = param_pred
-lam_1_pred, lam_2_pred = lam_1_pred.flatten(), lam_2_pred.flatten()
 
 print('Relative l2 error of u: {:.3e}'.format(error_u))
 print('Relative l2 error of lam_1: {:.3e}'.format(error_lam_1))

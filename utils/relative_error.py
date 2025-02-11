@@ -2,13 +2,13 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 14:20:45
-LastEditTime: 2025-02-10 23:04:53
+LastEditTime: 2025-02-11 11:49:39
 '''
 import numpy as np
 import torch
 
 def rl2_error(y_hat, y):
-    return np.linalg.norm(y_hat.flatten() - y.flatten()) / np.linalg.norm(y.flatten())
+    return np.linalg.norm(y_hat - y) / np.linalg.norm(y)
 
 def relative_error_of_solution(pinn, ref_data, num_sample=None):
     """
@@ -78,8 +78,17 @@ def relative_error_of_parameter(pinn, ref_data, num_sample=None, column_index=No
         column_index=column_index
     )
 
-    # 分开 param 为逐列的形式，用于计算 relative l2 error
-    param = [param[:, [i]] for i in range(param.shape[1])]
+    # 前面已经将 param 转换为 ndim=2 的 ndarray 形式
+    # 下面希望拆分成逐列的形式，用于计算 relative l2 error
+    # 如果 param 只有一列，则直接 flatten
+    # 如果 param 是多列的，则分开 param 为逐列的形式，再 flatten
+    # 顺便还要将列 flatten
+    if param.shape[1] == 1:
+        param = param.flatten()
+    elif param.shape[1] > 1:
+        param = [param[:, [i]].flatten() for i in range(param.shape[1])]
+    else:
+        raise
 
     # 因为 net_param 一定是以单列的形式返回的
     # 所以，想要知道有几个反演参数要计算，则判断它是否为 list/tuple，
