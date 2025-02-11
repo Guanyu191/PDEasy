@@ -7,8 +7,8 @@ LastEditTime: 2025-02-08 11:07:17
 import torch
 import torch.nn as nn
 
-from utils.init_network_weights import init_network_weights
-from utils.init_network_activation_function import init_network_activation_function
+from src.utils import init_network_weights
+from src.utils.init_network_activation_function import init_network_activation_function
 
 
 class MLP(nn.Module):
