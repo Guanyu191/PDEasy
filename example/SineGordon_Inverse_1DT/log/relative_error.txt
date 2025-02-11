@@ -1,0 +1,2 @@
+Relative l2 error of u: 2.827e-02
+Relative l2 error of alpha: 9.142e-02
