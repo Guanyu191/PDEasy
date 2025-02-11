@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 18:39:32
-LastEditTime: 2025-02-11 12:12:40
+LastEditTime: 2025-02-11 16:09:04
 '''
 import os
 import numpy as np
@@ -173,11 +173,10 @@ for it in range(N_ITERS):
     sub_optimizer.step()
 
     error_u, _ = relative_error_of_solution(pinn, ref_data=(X, u), num_sample=500)
-    error_param, param_pred = relative_error_of_parameter(
+    error_param, _ = relative_error_of_parameter(
         pinn, ref_data=(t, (lam_1, lam_2)), num_sample=50, column_index=-1
     )
     error_lam_1, error_lam_2 = error_param
-    lam_1_pred, lam_2_pred = param_pred
 
     logger.record(                                          # 保存训练信息
         iter=it,                                            # 每隔一定次数自动打印
