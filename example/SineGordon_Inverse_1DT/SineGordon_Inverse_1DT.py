@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 18:39:32
-LastEditTime: 2025-02-11 14:04:36
+LastEditTime: 2025-02-11 14:23:26
 '''
 import os
 import numpy as np
@@ -144,7 +144,6 @@ sub_optimizer = optim.Adam(pinn.network_parameter.parameters(), lr=1e-3)
 
 scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.9, patience=1000, verbose=True)
 sub_scheduler = optim.lr_scheduler.ReduceLROnPlateau(sub_optimizer, mode='min', factor=0.9, patience=1000, verbose=True)
-
 
 log_keys = ['iter', 'loss', 'loss_res', 'loss_obs', 'error_u', 'error_alpha']
 logger = Logger(LOG_DIR, log_keys, num_iters=N_ITERS, print_interval=100)
