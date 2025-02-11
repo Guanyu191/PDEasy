@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 11:26:26
-LastEditTime: 2025-02-10 17:03:19
+LastEditTime: 2025-02-11 15:52:50
 '''
 import torch
 from pinn.pinn_base import _PINN
@@ -24,6 +24,7 @@ class PINNInverse(_PINN):
 
     def net_sol(self, X):
         # 判断 X 的类型，支持 Tensor 和 list/tuple
+        # 为了直接输入网络，所以要确保 X 是整体的
         if isinstance(X, torch.Tensor):
             pass
         elif isinstance(X, (list, tuple)):
@@ -34,6 +35,7 @@ class PINNInverse(_PINN):
         # 标准化
         if self.should_normalize:
             X = (X - self.mean) / self.std
+            
         solution = self.network_solution(X)
 
         # 以单列的输出形式给到 output_transform 函数
