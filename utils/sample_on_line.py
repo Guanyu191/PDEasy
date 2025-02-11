@@ -2,18 +2,18 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 06:10:47
-LastEditTime: 2025-02-08 06:30:45
+LastEditTime: 2025-02-08 07:53:57
 '''
 import numpy as np
 
 
-def sample_on_line(x1, y1, x2, y2, n, method='grid'):
+def sample_on_line(p1, p2, n, method='grid'):
     """
     在两个点 (x1, y1) 和 (x2, y2) 的直线上随机采样 n_bcs 个点。
     
     参数:
-        x1, y1: 第一个点的坐标
-        x2, y2: 第二个点的坐标
+        p1: 第一个坐标点
+        p2: 第二个坐标点
         n: 需要采样的点数
         method: 采样方法，'random' 或 'grid'
 
@@ -27,6 +27,9 @@ def sample_on_line(x1, y1, x2, y2, n, method='grid'):
         # 在 [0, 1] 范围内生成随机权重
         t = np.random.rand(n)
 
+    x1, y1 = p1
+    x2, y2 = p2
+
     # 计算采样点的坐标
     sampled_x = (1 - t) * x1 + t * x2
     sampled_y = (1 - t) * y1 + t * y2
@@ -37,8 +40,8 @@ def sample_on_line(x1, y1, x2, y2, n, method='grid'):
 
 if __name__ == "__main__":
     # 测试示例
-    x1, y1 = 0, 0
-    x2, y2 = 1, 1
+    p1 = (0, 0)
+    p2 = (1, 1)
     n = 5
-    sampled_points = sample_on_line(x1, y1, x2, y2, n, method='grid')
+    sampled_points = sample_on_line(p1, p2, n, method='random')
     print(sampled_points)

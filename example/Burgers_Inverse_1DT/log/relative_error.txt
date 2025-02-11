@@ -1,0 +1,3 @@
+Relative l2 error of u: 6.593e-03
+Relative l2 error of lam_1: 8.181e-02
+Relative l2 error of lam_2: 3.725e-02
