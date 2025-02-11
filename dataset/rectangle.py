@@ -7,8 +7,8 @@ FilePath: \PDEasy\dataset\rectangle.py
 '''
 import numpy as np
 
-from src.dataset.dataset_base import _Dataset
-from src.utils import sample_on_line
+from dataset.dataset_base import _Dataset
+from utils.sample_on_line import sample_on_line
 
 
 class Dataset1D(_Dataset):
