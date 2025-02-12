@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 13:30:02
-LastEditTime: 2025-02-10 17:45:57
+LastEditTime: 2025-02-12 02:02:45
 '''
 import torch
 import torch.nn as nn
@@ -16,11 +16,37 @@ class _PINN(nn.Module):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def forward(self, data_dict):
-        NotImplementedError
+        r"""需要用户重写的 PINN 前向传播方法.
+
+        通过 data_dict 读取 PINN 需要的输入, 并计算各项 point-wise loss, 以 loss_dict 返回.
+
+        loss_dict 的 key 形如 'pw_loss_res', value 则是具体数据, 为 torch.Tensor 数据类型,
+        point-wise loss 在传递出去之后可以进一步结合权重算法等, 优化最终的 loss.
+
+        Args:
+            data_dict: 数据字典，用于 PINN 的前向传播. 其中 key 是数据名称, 例如 'X_res',
+                而 value 是具体的数据, 为 torch.Tensor 数据类型.
+
+        Returns:
+            torch.Tensor: loss_dict, 损失字典, 存储了 PINN 的前向传播结果.
+        """
+        raise NotImplementedError
 
     def grad(self, outputs, inputs, n_order=1):
-        """
-        求 outputs 对 inputs 的 n 阶导 n>=1
+        r"""求 outputs 对 inputs 的 n 阶导.
+
+        导数的阶数 n_order 可以很高 (>=5), 大幅度简化 PINN 中求导的写法.
+
+        outputs 和 inputs 必须是若干行且 1 列的, 表示单个变量.
+        二者的计算图关系必须正确.
+
+        Args:
+            outputs: 若干行, 1 列, Tensor.
+            inputs: 若干行, 1 列, Tensor.
+            n_order: >= 1, 整数.
+
+        Returns:
+            torch.Tensor: gradient of outputs with respect to inputs. 若干行, 1 列, Tensor.
         """
         current_grads = outputs
         for k in range(1, n_order + 1):
