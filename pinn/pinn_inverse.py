@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 11:26:26
-LastEditTime: 2025-02-11 15:52:50
+LastEditTime: 2025-02-12 02:05:00
 '''
 import torch
 from pinn.pinn_base import _PINN
@@ -20,7 +20,7 @@ class PINNInverse(_PINN):
         self.to(self.device)
         
     def forward(self, data_dict):
-        NotImplementedError
+        raise NotImplementedError
 
     def net_sol(self, X):
         # 判断 X 的类型，支持 Tensor 和 list/tuple
@@ -105,7 +105,7 @@ class PINNInverse(_PINN):
         return parameter
     
     def net_res(self, X):
-        NotImplementedError
+        raise NotImplementedError
 
     def net_obs(self, X):
-        NotImplementedError
+        raise NotImplementedError
