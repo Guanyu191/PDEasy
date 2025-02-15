@@ -2,7 +2,7 @@
 Descripttion: 
 Author: Guanyu
 Date: 2025-02-08 18:39:32
-LastEditTime: 2025-02-09 18:20:28
+LastEditTime: 2025-02-13 13:38:37
 '''
 import os
 import numpy as np
@@ -108,7 +108,6 @@ class PINN(PINNForward):
         return bcs_pred
     
     def net_ics(self, X):
-        XXX = X[:, [0]]**2 * torch.cos(torch.pi * X[:, [0]])
         u = self.net_sol(X)
         ics_pred = u - X[:, [0]]**2 * torch.cos(torch.pi * X[:, [0]])
         return ics_pred

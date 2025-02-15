@@ -1,13 +1,31 @@
-'''
-Descripttion: 
-Author: Guanyu
-Date: 2025-02-08 13:30:02
-LastEditTime: 2025-02-12 02:02:45
-'''
+r"""PINN 基类, 实现便捷的求导功能.
+
+该模块实现了 PINN 最核心的求导功能, 用以计算 residual loss, 并为了简化求导的写法,
+附带实现了一些列拆分与拼接的方法, 使得求导的写法更加简洁.
+
+基于该基类实现的 PINN, 用户可以简单的通过 `self.split_X_columns_and_require_grad(X)`
+来获得网络输入的坐标, 并要求梯度. 然后通过 `self.grad(u, x, 2)` 来计算导数.
+而不再需要调用 `torch.autograd.grad` 计算, 极大地简化求导的写法.
+
+Example::
+    >>> class PINNForward(_PINN):
+    >>>     ...
+    >>>
+    >>> class PINN(PINNForward):
+    >>>     ...
+    >>>     def net_res(self, X):
+    >>>         x, t = self.split_X_columns_and_require_grad(X)
+    >>>         u = self.net_sol([x, t])
+    >>>         u_t = self.grad(u, t, 1)
+    >>>         u_xx = self.grad(u, x, 2)
+    >>>         return u_t + u * u_x - 0.01 / torch.pi * u_xx
+"""
+
+from typing import List, Dict, Tuple, Union
 import torch
 import torch.nn as nn
 
-from typing import List
+from torch import Tensor
 
 
 class _PINN(nn.Module):
@@ -15,25 +33,28 @@ class _PINN(nn.Module):
         super(_PINN, self).__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    def forward(self, data_dict):
+    def forward(self, data_dict:Dict[str, Tensor]) -> Dict[str, Tensor]:
         r"""需要用户重写的 PINN 前向传播方法.
 
         通过 data_dict 读取 PINN 需要的输入, 并计算各项 point-wise loss, 以 loss_dict 返回.
 
-        loss_dict 的 key 形如 'pw_loss_res', value 则是具体数据, 为 torch.Tensor 数据类型,
+        loss_dict 的 key 形如 'pw_loss_res', value 则是具体数据, 为 Tensor 数据类型,
         point-wise loss 在传递出去之后可以进一步结合权重算法等, 优化最终的 loss.
 
         Args:
-            data_dict: 数据字典，用于 PINN 的前向传播. 其中 key 是数据名称, 例如 'X_res',
-                而 value 是具体的数据, 为 torch.Tensor 数据类型.
+            data_dict (Dict[str, Tensor]): 数据字典，用于 PINN 的前向传播. 
+                其中 key 是数据名称, 例如 'X_res', 而 value 是具体的数据.
+
+        Raises:
+            NotImplementedError: 提示用户重写该方法.
 
         Returns:
-            torch.Tensor: loss_dict, 损失字典, 存储了 PINN 的前向传播结果.
+            Dict[str, Tensor]: loss_dict, 损失字典, 存储了 PINN 的前向传播结果.
         """
         raise NotImplementedError
 
-    def grad(self, outputs, inputs, n_order=1):
-        r"""求 outputs 对 inputs 的 n 阶导.
+    def grad(self, outputs:Tensor, inputs:Tensor, n_order:int = 1) -> Tensor:
+        """求 outputs 对 inputs 的 n 阶导.
 
         导数的阶数 n_order 可以很高 (>=5), 大幅度简化 PINN 中求导的写法.
 
@@ -41,12 +62,12 @@ class _PINN(nn.Module):
         二者的计算图关系必须正确.
 
         Args:
-            outputs: 若干行, 1 列, Tensor.
-            inputs: 若干行, 1 列, Tensor.
-            n_order: >= 1, 整数.
+            outputs (Tensor): 若干行, 1 列, Tensor.
+            inputs (Tensor): 若干行, 1 列, Tensor.
+            n_order (int, optional): >= 1, int. Defaults to 1.
 
         Returns:
-            torch.Tensor: gradient of outputs with respect to inputs. 若干行, 1 列, Tensor.
+            Tensor: gradient of outputs with respect to inputs. 若干行, 1 列.
         """
         current_grads = outputs
         for k in range(1, n_order + 1):
@@ -61,7 +82,19 @@ class _PINN(nn.Module):
                                    grad_outputs=torch.ones_like(outputs), 
                                    create_graph=True)[0]
     
-    def split_columns(self, X: torch.Tensor):
+    def split_columns(self, X:Tensor) -> Union[Tensor, List[Tensor]]:
+        """对 Tensor 按列拆分.
+
+        X 的维度必须是 2 维, 行数任意. 
+        若 X 只有 1 列, 则返回原本的 X (Tensor), 若有 >=2 列, 则返回拆分后的 List[Tensor].        
+        拆分后的 List[Tensor] 中的每个 Tensor 都是 1 列, 维数是 2.
+
+        Args:
+            X (Tensor): 需要拆分的 Tensor, 若干行, 若干列.
+
+        Returns:
+            Union[Tensor, List[Tensor]]: 原 1 列的 Tensor 或拆分后的 List[Tensor].
+        """
         # 对于有多列的 X，逐列拆分
         num_columns = X.shape[1]
         if num_columns == 1:
@@ -72,7 +105,19 @@ class _PINN(nn.Module):
             raise
         return X
     
-    def cat_columns(self, X: List[torch.Tensor]):
+    def cat_columns(self, X:List[Tensor]) -> Tensor:
+        """对 List[Tensor] 按列拼接.
+
+        List[Tensor] 中的每个 Tensor 都是 1 列, 维数是 2.
+        若 List[Tensor] 只有 1 个 Tensor, 则返回原本的 Tensor, 
+        若有 >=2 个 Tensor, 则返回拼接后的 Tensor.
+
+        Args:
+            X (List[Tensor]): 需要拼接的 List[Tensor], 若干行, 若干列.
+
+        Returns:
+            Tensor: 原 1 列的 Tensor 或拼接后的 Tensor.
+        """
         # 对于有多列的 X，逐列拼接
         num_columns = len(X)
         if num_columns == 1:
@@ -83,7 +128,20 @@ class _PINN(nn.Module):
             raise
         return X
     
-    def split_X_columns_and_require_grad(self, X: torch.Tensor):
+    def split_X_columns_and_require_grad(self, X:Tensor) -> Union[Tensor, List[Tensor]]:
+        """对 Tensor 按列拆分, 并对每个 Tensor 都 requires_grad_.
+
+        X 的维度必须是 2 维, 行数任意.
+        若 X 只有 1 列, 则返回原本的 X (Tensor), 
+        若有 >=2 列, 则返回拆分后的 List[Tensor].
+        拆分后的 List[Tensor] 中的每个 Tensor 都是 1 列, 维数是 2.
+
+        Args:
+            X (Tensor): 需要拆分并 requires_grad_ 的 Tensor, 若干行, 若干列.
+
+        Returns:
+            Union[Tensor, List[Tensor]]: 原 1 列的 Tensor 或拆分后的 List[Tensor].
+        """
         # 对于有多列的 X，逐列 requires_grad_ 以便求偏导
         num_columns = X.shape[1]
         if num_columns == 1:
@@ -93,49 +151,3 @@ class _PINN(nn.Module):
         else:
             raise
         return X
-
-
-
-if __name__ == '__main__':
-    # 测试示例
-    def f(X):
-        # return X[:, [0]] * X[:, [1]] * 2
-        return (X[:, [0]]**2 + X[:, [1]]**2) * 2
-        # return torch.sum((X)**2, dim=1, keepdim=True)
-
-        # 2 * (x^2 + y^2)
-        # 2 * 2 * x    n_order=1
-        # 2 * 2        n_order=2
-        # 0            n_order=3
-
-
-    n = 3
-    x = torch.tensor(range(1, n+1), dtype=float, requires_grad=True)
-    x = x.reshape(n, -1)
-    y = torch.tensor(range(1, n+1), dtype=float, requires_grad=True)
-    y = y.reshape(n, -1)
-    print(x)
-    print(y)
-    # x = torch.randn(n, requires_grad=True)
-    # y = torch.randn(n, requires_grad=True)
-
-    X = torch.cat([x, y], dim=1)
-    u = f(X)
-    print(u)
-
-    pinn = _PINN()
-
-    # 1阶导
-    # u_x = torch.autograd.grad(u, x, grad_outputs=torch.ones_like(u[:, [0]]), create_graph=True)[0]
-    u_x = pinn.grad(u, x, 1)
-    print(u_x)
-
-    # 2阶导
-    # u_xx = torch.autograd.grad(u_x, x, grad_outputs=torch.ones_like(u_x))[0]
-    u_xx = pinn.grad(u, x, 2)
-    print(u_xx)
-
-    # n阶导
-    n_order = 3
-    u_nx = pinn.grad(u, x, n_order=n_order)
-    print(u_nx)
