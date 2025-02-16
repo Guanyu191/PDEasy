@@ -1,18 +1,59 @@
-'''
-Descripttion: 
-Author: Guanyu
-Date: 2025-02-07 22:36:57
-LastEditTime: 2025-02-09 14:30:28
-FilePath: \PDEasy\dataset\rectangle.py
-'''
+"""矩形域数据集.
+
+用以生成矩形域的内部点, 边界点, 以及初始点. 可选择随机采样或网格采样.
+
+具体包括如下 4 类:
+    1. Dataset1D: 1D 空间的矩形域.
+    2. Dataset1DT: 1D 空间 + 时间的矩形域.
+    3. Dataset2D: 2D 空间的矩形域.
+    4. Dataset2DT: 2D 空间 + 时间的矩形域.
+
+TODO:
+    1. 增加高维空间 (+ 时间) 的矩形域.
+    2. 增加 L shape 区域.
+    3. 增加圆形域和高维球形域.
+    4. 增加 LHS 等其它采样方法.
+
+Example::
+    >>> # 定义超参数
+    >>> DOMAIN = (-1, 1, 0, 1)  # (x_min, x_max, t_min, t_max)
+    >>> N_RES = 2000
+    >>> N_BCS = 200
+    >>> N_ICS = 200
+    >>> 
+    >>> # 根据需求继承类
+    >>> class Dataset(Dataset1DT):
+    >>>     def __init__(self, domain):
+    >>>         super().__init__(domain)
+    >>> 
+    >>>     def custom_update(self, n_res=N_RES, n_bcs=N_BCS, n_ics=N_ICS):
+    >>>         self.interior_random(n_res)
+    >>>         self.boundary_random(n_bcs)
+    >>>         self.initial_random(n_ics)
+    >>>
+    >>> # 创建数据集实例
+    >>> dataset = Dataset(DOMAIN)
+"""
+
 import numpy as np
 
 from dataset.dataset_base import _Dataset
 from utils.sample_on_line import sample_on_line
 
+from typing import Tuple, Union
+
 
 class Dataset1D(_Dataset):
-    def __init__(self, domain):
+    def __init__(
+            self, 
+            domain: Tuple[float, float]
+    ) -> None:
+        """1D 空间的矩形域.
+
+        Args:
+            domain (Tuple[float, float]): (x_min, x_max).
+        """
+
         super().__init__()
         self.x_min, self.x_max = domain
         self.first_update()
@@ -40,7 +81,17 @@ class Dataset1D(_Dataset):
 
 
 class Dataset1DT(_Dataset):
-    def __init__(self, domain):
+    def __init__(
+            self, 
+            domain: Tuple[float, float, float, float]
+    ) -> None:
+        """1D 空间 + 时间的矩形域.
+
+        Args:
+            domain (Tuple[float, float, float, float]): 
+                (x_min, x_max, t_min, t_max).
+        """
+
         super().__init__()
         self.x_min, self.x_max, self.t_min, self.t_max = domain
         self.first_update()
@@ -105,7 +156,17 @@ class Dataset1DT(_Dataset):
 
 
 class Dataset2D(_Dataset):
-    def __init__(self, domain):
+    def __init__(
+            self, 
+            domain: Tuple[float, float, float, float]
+    ) -> None:
+        """2D 空间的矩形域.
+
+        Args:
+            domain (Tuple[float, float, float, float]): 
+                (x_min, x_max, y_min, y_max).
+        """
+
         super().__init__()
         self.x_min, self.x_max, self.y_min, self.y_max = domain
         self.first_update()
@@ -160,7 +221,17 @@ class Dataset2D(_Dataset):
 
 
 class Dataset2DT(_Dataset):
-    def __init__(self, domain):
+    def __init__(
+            self, 
+            domain: Tuple[float, float, float, float, float, float]
+    ) -> None:
+        """2D 空间 + 时间的矩形域.
+
+        Args:
+            domain (Tuple[float, float, float, float, float, float]): 
+                (x_min, x_max, y_min, y_max, t_min, t_max).
+        """
+
         super().__init__()
         self.x_min, self.x_max, self.y_min, self.y_max, self.t_min, self.t_max = domain
         self.first_update()
@@ -211,12 +282,6 @@ class Dataset2DT(_Dataset):
         t = np.linspace(self.t_min, self.t_max, n_t)
 
         x, y, t = np.meshgrid(x, y, t)
-
-
-    # TODO
-    def interior_grid(self, nx, ny, nt):
-        """对内部网格采样"""
-        pass
 
     # TODO
     def boundary_grid(self, nb):
