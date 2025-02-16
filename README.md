@@ -1,47 +1,40 @@
-### README 核心要点
-1. **项目标题与简介**（1-3句话说明核心价值）
-2. **关键特性**（Bullet points 列出主要功能）
-3. **快速安装指南**
-4. **快速使用示例**（含可运行的代码片段）
-5. **核心功能详解**
-6. **文档链接**
-7. **贡献指南**
-8. **许可证信息**
-9. **引用方式**（学术用途时重要）
-10. **相关项目致谢**
+# PDEasy ​(​0​.​1​.​0​)​ :zap:
 
----
-
-### Markdown 模板
-
-# PDEasy :zap:
 [![PyPI Version](https://img.shields.io/pypi/v/pdeasy)](https://pypi.org/project/pdeasy/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Documentation Status](https://img.shields.io/badge/docs-latest-brightgreen)](https://your-docs-url)
 
-PDEasy: Lightweight PINN-PDE Solver for Research, Balancing Abstraction and Flexibility for Algorithm Innovation.
+**PDEasy: Lightweight PINN-PDE Solver for Research, Balancing Abstraction and Flexibility for Algorithm Innovation.**
 
 > **Note:** 目前, 关于 PINN (Physics-Informed Neural Networks) 的 Python 库大都封装程度较高, 主要面向工程部署或新手入门. 然而, 对于 PINN 相关科研工作者来说, 通过较高封装的代码去实现自己的 idea 是非常困难的. 因此, 我们希望写一套面向科研工作者的 PINN-PDE 求解库, 平衡封装程度与扩展性, 使得用户能够快速实现新的 idea, 加速算法创新.
 
 ## :rocket: Key Features
 
-1. **PINN 求解流程化, 核心组件模块化.**
-   - PINN 求解流程规范为: 定义超参数, 定义数据集, 定义网络模型, 定义 PINN 模型, 训练模型, 评估与可视化.
-   - 其中, 各种网络模型, PINN 正反问题模型, 可视化模块等都实现了封装, 并提供了扩展接口.
-   - 尤其是对于 PINN 特有的对输入坐标求偏导, 也实现了简化.
-2. **可以灵活扩展自己的 idea.**
-   - 框架内的数据, 例如采样点和 loss 信息, 都以 dict 的形式流动, 用户可以轻松地读取或加入信息, 并融合采样和权重等算法.
-   - 未封装训练模块, 使用户更容易修改训练过程.
-   - PINN 模型提供了良好的扩展接口, 可以融合各种网络, 或增加各种计算方式.
-3. **全面的训练信息监控.**
-   - 训练过程中的 loss 和 error, 都可以通过封装模块快速计算, 并存储到 logger 中.
-   - 可视化模块可以直接通过 logger 绘图, 展示训练过程的各项 loss 和 error 的变化.
-4. **基于 PyTorch.**
+### 1. PINN 求解流程化
+
+- **PINN 求解流程**规范为: 定义超参数, 定义数据集, 定义网络模型, 定义 PINN 模型, 训练模型, 评估与可视化.
+
+- 其中, 各种**网络**模型, **PINN 正反问题**模型, 可视化模块等都实现了封装, 并提供了扩展接口.
+- 尤其是对于 PINN 特有的对输入坐标**求偏导**, 也实现了简化.
+
+### 2. 可以灵活扩展自己的 idea
+
+- 框架内的数据, 例如**采样点**和 **loss** 信息, 都**以 dict 的形式流动**, 用户可以轻松地读取或加入信息, 并融合采样和权重等算法.
+- 未封装训练模块, 使用户更容易修改训练过程.
+- PINN 模型提供了良好的扩展接口, 可以融合各种网络, 或增加各种计算方式.
+
+### 3. 全面的训练信息监控
+
+- 训练过程中的 **loss** 和 **error**, 都可以通过封装模块快速计算, 并存储到 **logger** 中.
+- 可视化模块可以直接通过 logger 绘图, 展示训练过程的各项 loss 和 error 的变化.
+
+> **Note:** PDEasy 基于 PyTorch, NumPy, Matplotlib 等主流 Python packages.
 
 ## :package: Installation
 
 目前仅支持下载压缩包使用.
 
-> Note: 由于我们本身不懂开发的, 所以这个项目比较朴素, 仅仅从日常科研需求沉淀形成. 随着我们的代码能力精进, PDEasy 会变得更好.
+> **Note:** 由于我们不是计算机出身, 所以这个项目比较朴素, 仅仅从日常科研需求沉淀形成. 后续完善后会增加安装方法.
 
 ## :hourglass_flowing_sand: Quick Start
 这里我们以 Burgers 方程正问题为例, 介绍 PDEasy 的使用方法.
@@ -142,9 +135,10 @@ class PINN(PINNForward):
 
 ### 4. 训练模型
 
-#### 4.1 导入参照解 用于计算 Relative $L^2$ error
+#### 4.1 导入参照解
 
 ```python
+# 导入参照解 用于计算 Relative $L^2$ error
 init_dir(DATA_DIR, FIGURE_DIR, LOG_DIR, MODEL_DIR)
 
 data = io.loadmat(os.path.join(DATA_DIR, 'Burgers_Sol.mat'))
@@ -246,9 +240,9 @@ plot_loss_from_logger(logger, FIGURE_DIR, show=True)
 plot_error_from_logger(logger, FIGURE_DIR, show=True)
 ```
 
-<img src="README.assets/loss.png" alt="loss" style="zoom: 33%;" />
+<img src="README.assets/loss.png" alt="loss" style="zoom:50%;" />
 
-<img src="README.assets/error.png" alt="error" style="zoom: 33%;" />
+<img src="README.assets/error.png" alt="error" style="zoom:50%;" />
 
 #### 5.3 可视化 solution
 
@@ -284,12 +278,12 @@ plot_solution_from_data(
 Full documentation is available at [docs.pdeasy.org](https://docs.pdeasy.org) | [查看中文文档]()
 
 ## :handshake: Contributing
-我们欢迎更多开发者加入, 详细交流请联系:
+我们欢迎更多开发者加入, 请联系:
 
 - 邮箱 guanyu191@163.com
 - 微信 guanyu191
 
-> **Note:** PDEasy 前身由数据谷团队的潘冠宇和徐梓锟在 2023 年 1 月根据团队科研需求开发, 当时主要用于 PINN 求解反问题. 在 2025 年 2 月, 我们重新定位, 面向 PINN 领域科研工作者, 开发了 PDEasy 库. 往后我们会进一步完善, 支持更多的问题.
+> **Note:** PDEasy 前身由数据谷团队的潘冠宇和徐梓锟在 2023 年 1 月根据团队科研需求开发, 当时主要用于 PINN 求解反问题. 在 2025 年 2 月, 我们重新改进代码, 面向 PINN 领域科研工作者, 开发了 PDEasy 库. 往后我们会进一步完善, 支持更多的 PDE 正反问题.
 
 ## :scroll: License
 MIT License. See [LICENSE](LICENSE) for details.
@@ -299,10 +293,9 @@ If using PDEasy in research:
 ```bibtex
 @software{PDEasy,
   author = {Guanyu Pan},
-  title = {PDEasy: Simplified PDE Solving with PINNs},
+  title = {PDEasy: Lightweight PINN-PDE Solver for Research, Balancing Abstraction and Flexibility for Algorithm Innovation.},
   year = {2025},
   publisher = {GitHub},
-  journal = {GitHub repository},
-  howpublished = {\url{https://github.com/yourusername/PDEasy}}
+  howpublished = {\url{https://github.com/Guanyu191/PDEasy}},
 }
 ```
