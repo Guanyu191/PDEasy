@@ -1,9 +1,3 @@
-'''
-Descripttion: 
-Author: Guanyu
-Date: 2025-02-10 15:41:53
-LastEditTime: 2025-02-10 15:45:02
-'''
 import os
 
 def count_lines_in_file(file_path):

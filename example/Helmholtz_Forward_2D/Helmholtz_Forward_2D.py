@@ -1,5 +1,5 @@
-'''
-Descripttion: 
+r'''
+Descripttion: Example for Helmholtz equation with PINN.
 Author: Guanyu
 Date: 2025-02-08 18:39:32
 LastEditTime: 2025-02-09 17:21:26
@@ -14,8 +14,8 @@ import torch.optim as optim
 import sys
 sys.path.append("../../")
 
-from dataset.rectangle import Dataset2D
-from pinn.pinn_forward import PINNForward
+from dataset import Dataset2D
+from pinn import PINNForward
 from network import MFF2D
 from utils import *
 from plotting import *

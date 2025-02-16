@@ -1,9 +1,3 @@
-'''
-Descripttion: 
-Author: Guanyu
-Date: 2025-02-08 06:10:47
-LastEditTime: 2025-02-08 07:53:57
-'''
 import numpy as np
 
 

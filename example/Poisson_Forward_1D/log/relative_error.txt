@@ -1,1 +1,1 @@
-Relative l2 error of u: 2.190e-02
+Relative l2 error of u: 1.743e-02

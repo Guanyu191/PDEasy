@@ -1,8 +1,8 @@
-'''
-Descripttion: 
+r'''
+Descripttion: Example of 1D Burgers equation with PINN.
 Author: Guanyu
-Date: 2025-02-08 18:39:32
-LastEditTime: 2025-02-09 17:37:57
+Date: 2025-02-08 01:31:59
+LastEditTime: 2025-02-16 14:21:13
 '''
 import os
 import numpy as np
@@ -14,8 +14,8 @@ import torch.optim as optim
 import sys
 sys.path.append("../../")
 
-from dataset.rectangle import Dataset1DT
-from pinn.pinn_forward import PINNForward
+from dataset import Dataset1DT
+from pinn import PINNForward
 from network import MLP
 from utils import *
 from plotting import *
@@ -30,11 +30,11 @@ LOG_DIR = './log'
 MODEL_DIR = './model'
 
 DOMAIN = (-1, 1, 0, 1)  # (x_min, x_max, t_min, t_max)
-N_RES = 2000
+N_RES = 5000
 N_BCS = 200
 N_ICS = 200
-N_ITERS = 10000
-NN_LAYERS = [2] + [20]*4 + [1]
+N_ITERS = 20000
+NN_LAYERS = [2] + [80]*4 + [1]
 
 
 # --------------------------------------------
@@ -119,7 +119,7 @@ pinn = PINN(network)
 pinn.mean, pinn.std = dataset.data_dict['mean'], dataset.data_dict['std']
 
 optimizer = optim.Adam(pinn.parameters(), lr=0.001)
-# scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.9, patience=500)
+scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.9, patience=500)
 
 log_keys = ['iter', 'loss', 'loss_res', 'loss_bcs', 'loss_ics', 'error_u']
 logger = Logger(LOG_DIR, log_keys, num_iters=N_ITERS, print_interval=100)
@@ -144,7 +144,7 @@ for it in range(N_ITERS):
     
     loss.backward()                                         # 反向传播    
     optimizer.step()                                        # 更新网络参数
-    # scheduler.step(loss)                                    # 调整学习率
+    scheduler.step(loss)                                    # 调整学习率
 
     error_u, _ = relative_error_of_solution(pinn, ref_data=(X, u), num_sample=500)
 

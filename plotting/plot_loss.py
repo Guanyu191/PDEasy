@@ -1,9 +1,3 @@
-'''
-Descripttion: 
-Author: Guanyu
-Date: 2025-02-08 15:38:22
-LastEditTime: 2025-02-08 21:22:38
-'''
 import matplotlib.pyplot as plt
 import numpy as np
 import os

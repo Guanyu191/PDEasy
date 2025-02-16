@@ -1,8 +1,8 @@
-'''
-Descripttion: 
+r'''
+Descripttion: Example of Allen-Cahn equation with PINN.
 Author: Guanyu
 Date: 2025-02-08 18:39:32
-LastEditTime: 2025-02-09 18:20:28
+LastEditTime: 2025-02-16 14:23:20
 '''
 import os
 import numpy as np
@@ -14,8 +14,8 @@ import torch.optim as optim
 import sys
 sys.path.append("../../")
 
-from dataset.rectangle import Dataset1DT
-from pinn.pinn_forward import PINNForward
+from dataset import Dataset1DT
+from pinn import PINNForward
 from network import MLP
 from utils import *
 from plotting import *
@@ -91,8 +91,7 @@ class PINN(PINNForward):
         return loss_dict
     
     def net_res(self, X):
-        columns = self.split_X_columns_and_require_grad(X)
-        x, t = columns
+        x, t = self.split_X_columns_and_require_grad(X)
         u = self.net_sol([x, t])
 
         u_t = self.grad(u, t, 1)
@@ -108,14 +107,14 @@ class PINN(PINNForward):
         return bcs_pred
     
     def net_ics(self, X):
-        XXX = X[:, [0]]**2 * torch.cos(torch.pi * X[:, [0]])
         u = self.net_sol(X)
         ics_pred = u - X[:, [0]]**2 * torch.cos(torch.pi * X[:, [0]])
         return ics_pred
     
     def net_sol_output_transform(self, X, u):
         # x^{2} \cos(\pi x) + t (1 - x^{2}) u
-        return X[:, [0]]**2 * torch.cos(torch.pi * X[:, [0]]) + X[:, [1]] * (1 - X[:, [0]]**2) * u
+        x, t = X
+        return x**2 * torch.cos(torch.pi * x) + t * (1 - x**2) * u
 
 
 # ---------------------------------------------------

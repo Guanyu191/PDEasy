@@ -1,9 +1,3 @@
-'''
-Descripttion: 
-Author: Guanyu
-Date: 2025-02-08 09:24:33
-LastEditTime: 2025-02-08 22:11:45
-'''
 import torch.nn as nn
 import torch.nn.init as init
 
