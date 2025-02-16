@@ -1,8 +1,8 @@
-'''
-Descripttion: 
+r'''
+Descripttion: Example of inverse Sine-Gordon problem with PINN.
 Author: Guanyu
 Date: 2025-02-08 18:39:32
-LastEditTime: 2025-02-11 14:23:26
+LastEditTime: 2025-02-16 14:28:30
 '''
 import os
 import numpy as np
@@ -14,7 +14,7 @@ import torch.optim as optim
 import sys
 sys.path.append("../../")
 
-from dataset.rectangle import Dataset1DT
+from dataset import Dataset1DT
 from pinn import PINNInverse
 from network import *
 from utils import *

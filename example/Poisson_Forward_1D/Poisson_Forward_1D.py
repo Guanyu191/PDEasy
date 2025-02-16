@@ -1,8 +1,8 @@
-'''
-Descripttion: 
+r'''
+Descripttion: Example of high-frequency Poisson equation with PINN.
 Author: Guanyu
 Date: 2025-02-08 18:39:32
-LastEditTime: 2025-02-09 16:13:55
+LastEditTime: 2025-02-16 16:13:55
 '''
 import os
 import numpy as np
@@ -14,8 +14,8 @@ import torch.optim as optim
 import sys
 sys.path.append("../../")
 
-from dataset.rectangle import Dataset1D
-from pinn.pinn_forward import PINNForward
+from dataset import Dataset1D
+from pinn import PINNForward
 from network import MFF1D
 from utils import *
 from plotting import *

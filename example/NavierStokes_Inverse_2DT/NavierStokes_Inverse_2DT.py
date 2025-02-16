@@ -1,8 +1,8 @@
-'''
-Descripttion: 
+r'''
+Descripttion: Example for inverse Navier-Stokes problem with PINN.
 Author: Guanyu
 Date: 2025-02-08 18:39:32
-LastEditTime: 2025-02-11 17:58:27
+LastEditTime: 2025-02-16 14:26:09
 '''
 import os
 import numpy as np
@@ -14,7 +14,7 @@ import torch.optim as optim
 import sys
 sys.path.append("../../")
 
-from dataset.rectangle import Dataset2DT
+from dataset import Dataset2DT
 from pinn import PINNInverse
 from network import *
 from utils import *

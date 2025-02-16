@@ -1,8 +1,8 @@
-'''
-Descripttion: 
+r'''
+Descripttion: Example for Inverse Burgers problem with PINN.
 Author: Guanyu
 Date: 2025-02-08 18:39:32
-LastEditTime: 2025-02-11 16:09:04
+LastEditTime: 2025-02-16 14:24:39
 '''
 import os
 import numpy as np
@@ -14,7 +14,7 @@ import torch.optim as optim
 import sys
 sys.path.append("../../")
 
-from dataset.rectangle import Dataset1DT
+from dataset import Dataset1DT
 from pinn import PINNInverse
 from network import *
 from utils import *
