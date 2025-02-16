@@ -30,11 +30,11 @@ LOG_DIR = './log'
 MODEL_DIR = './model'
 
 DOMAIN = (-1, 1, 0, 1)  # (x_min, x_max, t_min, t_max)
-N_RES = 2000
+N_RES = 5000
 N_BCS = 200
 N_ICS = 200
 N_ITERS = 20000
-NN_LAYERS = [2] + [40]*4 + [1]
+NN_LAYERS = [2] + [80]*4 + [1]
 
 
 # --------------------------------------------
@@ -119,7 +119,7 @@ pinn = PINN(network)
 pinn.mean, pinn.std = dataset.data_dict['mean'], dataset.data_dict['std']
 
 optimizer = optim.Adam(pinn.parameters(), lr=0.001)
-# scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.9, patience=500)
+scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.9, patience=500)
 
 log_keys = ['iter', 'loss', 'loss_res', 'loss_bcs', 'loss_ics', 'error_u']
 logger = Logger(LOG_DIR, log_keys, num_iters=N_ITERS, print_interval=100)
@@ -144,7 +144,7 @@ for it in range(N_ITERS):
     
     loss.backward()                                         # 反向传播    
     optimizer.step()                                        # 更新网络参数
-    # scheduler.step(loss)                                    # 调整学习率
+    scheduler.step(loss)                                    # 调整学习率
 
     error_u, _ = relative_error_of_solution(pinn, ref_data=(X, u), num_sample=500)
 
