@@ -246,9 +246,9 @@ plot_loss_from_logger(logger, FIGURE_DIR, show=True)
 plot_error_from_logger(logger, FIGURE_DIR, show=True)
 ```
 
-<img src="README.assets/loss.png" alt="loss" style="zoom:50%;" />
+<img src="README.assets/loss.png" alt="loss" style="zoom: 33%;" />
 
-<img src="README.assets/error.png" alt="error" style="zoom:50%;" />
+<img src="README.assets/error.png" alt="error" style="zoom: 33%;" />
 
 #### 5.3 可视化 solution
 
