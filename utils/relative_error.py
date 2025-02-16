@@ -1,9 +1,3 @@
-'''
-Descripttion: 
-Author: Guanyu
-Date: 2025-02-08 14:20:45
-LastEditTime: 2025-02-11 16:26:55
-'''
 import numpy as np
 import torch
 
