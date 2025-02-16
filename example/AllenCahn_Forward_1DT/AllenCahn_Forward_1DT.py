@@ -91,8 +91,7 @@ class PINN(PINNForward):
         return loss_dict
     
     def net_res(self, X):
-        columns = self.split_X_columns_and_require_grad(X)
-        x, t = columns
+        x, t = self.split_X_columns_and_require_grad(X)
         u = self.net_sol([x, t])
 
         u_t = self.grad(u, t, 1)
@@ -114,7 +113,8 @@ class PINN(PINNForward):
     
     def net_sol_output_transform(self, X, u):
         # x^{2} \cos(\pi x) + t (1 - x^{2}) u
-        return X[:, [0]]**2 * torch.cos(torch.pi * X[:, [0]]) + X[:, [1]] * (1 - X[:, [0]]**2) * u
+        x, t = X
+        return x**2 * torch.cos(torch.pi * x) + t * (1 - x**2) * u
 
 
 # ---------------------------------------------------

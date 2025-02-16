@@ -98,12 +98,13 @@ class MFF1D(nn.Module):
         >>> NN_LAYERS = [1, 100, 100, 100, 1]
         >>> network = MFF1D(NN_LAYERS)
     """
-    def __init__(self, 
-                 nn_layers: List[int], 
-                 act_type: str = 'tanh',
-                 init_type: str = 'defalut',
-                 sigma_1: int = 1, 
-                 sigma_2: int = 10,
+    def __init__(
+            self, 
+            nn_layers: List[int], 
+            act_type: str = 'tanh',
+            init_type: str = 'defalut',
+            sigma_1: int = 1, 
+            sigma_2: int = 10,
     ) -> None:
         r"""_summary_
 
@@ -183,12 +184,13 @@ class STFF1DT(nn.Module):
         >>> NN_LAYERS = [2, 100, 100, 100, 1]
         >>> network = STFF1DT(NN_LAYERS)
     """
-    def __init__(self, 
-                 nn_layers: List[int], 
-                 act_type: str = 'tanh',
-                 init_type: str = 'defalut',
-                 sigma_x: int = 1, 
-                 sigma_t: int = 10
+    def __init__(
+            self, 
+            nn_layers: List[int], 
+            act_type: str = 'tanh',
+            init_type: str = 'defalut',
+            sigma_x: int = 1, 
+            sigma_t: int = 10
     ) -> None:
         r"""_summary_
 
@@ -267,13 +269,14 @@ class STMFF1DT(nn.Module):
         >>> NN_LAYERS = [2, 100, 100, 100, 1]
         >>> network = STMFF1DT(NN_LAYERS)
     """
-    def __init__(self, 
-                 nn_layers: List[int], 
-                 act_type: str = 'tanh',
-                 init_type: str = 'defalut',
-                 sigma_x: int = 1,
-                 sigma_t_1: int = 1, 
-                 sigma_t_2: int = 10
+    def __init__(
+            self, 
+            nn_layers: List[int], 
+            act_type: str = 'tanh',
+            init_type: str = 'defalut',
+            sigma_x: int = 1,
+            sigma_t_1: int = 1, 
+            sigma_t_2: int = 10
     ) -> None:
         r"""_summary_
 
@@ -356,12 +359,13 @@ class FF2D(nn.Module):
         >>> NN_LAYERS = [2, 100, 100, 100, 1]
         >>> network = FF2D(NN_LAYERS)
     """
-    def __init__(self, 
-                 nn_layers: List[int], 
-                 act_type: str = 'tanh', 
-                 init_type: str = 'defalut',
-                 sigma_x: int = 10, 
-                 sigma_y: int = 10
+    def __init__(
+            self, 
+            nn_layers: List[int], 
+            act_type: str = 'tanh', 
+            init_type: str = 'defalut',
+            sigma_x: int = 10, 
+            sigma_y: int = 10
         ) -> None:
         r"""_summary_
 
@@ -435,14 +439,15 @@ class MFF2D(nn.Module):
         >>> NN_LAYERS = [2, 100, 100, 100, 1]
         >>> network = MFF2D(NN_LAYERS)
     """
-    def __init__(self, 
-                 nn_layers: List[int], 
-                 act_type: str = 'tanh', 
-                 init_type: str = 'default',
-                 sigma_x_1: int = 1, 
-                 sigma_x_2: int = 10, 
-                 sigma_y_1: int = 1, 
-                 sigma_y_2: int = 10
+    def __init__(
+            self, 
+            nn_layers: List[int], 
+            act_type: str = 'tanh', 
+            init_type: str = 'default',
+            sigma_x_1: int = 1, 
+            sigma_x_2: int = 10, 
+            sigma_y_1: int = 1, 
+            sigma_y_2: int = 10
     ) -> None:
         r"""_summary_
 
@@ -533,13 +538,14 @@ class FF2DT(nn.Module):
         >>> NN_LAYERS = [3, 100, 100, 100, 1]
         >>> network = FF2D(NN_LAYERS)
     """
-    def __init__(self, 
-                 nn_layers: List[int], 
-                 act_type: str = 'tanh', 
-                 init_type: str = 'default',
-                 sigma_x: int = 10, 
-                 sigma_y: int = 10, 
-                 sigma_t: int = 10
+    def __init__(
+            self, 
+            nn_layers: List[int], 
+            act_type: str = 'tanh', 
+            init_type: str = 'default',
+            sigma_x: int = 10, 
+            sigma_y: int = 10, 
+            sigma_t: int = 10
     ) -> None:
         r"""_summary_
 
