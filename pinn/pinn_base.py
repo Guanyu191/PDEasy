@@ -1,9 +1,3 @@
-'''
-Descripttion: 
-Author: Guanyu
-Date: 2025-02-12 01:32:00
-LastEditTime: 2025-02-16 21:04:38
-'''
 r"""PINN 基类, 实现便捷的求导功能.
 
 该模块实现了 PINN 最核心的求导功能, 用以计算 residual loss, 并为了简化求导的写法,
