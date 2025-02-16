@@ -112,11 +112,10 @@ class PINN(PINNForward):
         return loss_dict
     
     def net_res(self, X):
-        columns = self.split_X_columns_and_require_grad(X)
-        x, t = columns
+        x, t = self.split_X_columns_and_require_grad(X)
         u = self.net_sol([x, t])
 
-        u_x = self.grad(u, x, 1)
+        u_x = self.grad(u, x, 1)  # 更简单的求导写法
         u_t = self.grad(u, t, 1)
         u_xx = self.grad(u, x, 2)
         res_pred = u_t + u * u_x - (0.01 / torch.pi) * u_xx
@@ -138,7 +137,6 @@ class PINN(PINNForward):
 #### 4.1 导入参照解
 
 ```python
-# 导入参照解 用于计算 Relative $L^2$ error
 init_dir(DATA_DIR, FIGURE_DIR, LOG_DIR, MODEL_DIR)
 
 data = io.loadmat(os.path.join(DATA_DIR, 'Burgers_Sol.mat'))
@@ -275,7 +273,7 @@ plot_solution_from_data(
 ![Sol_PINN](README.assets/Sol_PINN.png)
 
 ## :books: Documentation
-Full documentation is available at [docs.pdeasy.org](https://docs.pdeasy.org) | [查看中文文档]()
+TODO.
 
 ## :handshake: Contributing
 我们欢迎更多开发者加入, 请联系:
