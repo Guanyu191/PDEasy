@@ -247,10 +247,6 @@ plot_error_from_logger(logger, FIGURE_DIR, show=True)
 ```python
 error_u, u_pred = relative_error_of_solution(pinn, ref_data=(X, u))
 
-print('Relative l2 error of u: {:.3e}'.format(error_u))
-with open(os.path.join(LOG_DIR, 'relative_error.txt'), 'w') as f_obj:
-    f_obj.write('Relative l2 error of u: {:.3e}\n'.format(error_u))
-
 plot_solution_from_data(
     FIGURE_DIR, 
     x_grid=xx.reshape(u_shape),
