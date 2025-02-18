@@ -32,8 +32,9 @@ MLP 类神经网络模型包括:
     
 Example::
     >>> NN_LAYERS = [2, 20, 20, 1]
-    >>> mlp = MLP(NN_LAYERS)
-    >>> mlp = ModifiedMLP(NN_LAYERS)
+    >>> network = MLP(NN_LAYERS)
+    >>> ...
+    >>> network = ModifiedMLP(NN_LAYERS)
 """
 import torch
 import torch.nn as nn
@@ -52,7 +53,7 @@ class MLP(nn.Module):
 
     Example::
         >>> NN_LAYERS = [2, 20, 20, 1]
-        >>> mlp = MLP(NN_LAYERS)
+        >>> network = MLP(NN_LAYERS)
     """
     def __init__(
             self, 
@@ -100,7 +101,7 @@ class ModifiedMLP(nn.Module):
 
     Example::
         >>> NN_LAYERS = [2, 20, 20, 1]
-        >>> mlp = ModifiedMLP(NN_LAYERS)
+        >>> network = ModifiedMLP(NN_LAYERS)
     """
     def __init__(
             self, 
