@@ -1,5 +1,7 @@
 r'''
 Descripttion: Example of inverse Sine-Gordon problem with PINN.
+    Use FFN as solution network.
+    Use gradient-dependent weight for residual loss.
 Author: Guanyu
 Date: 2025-02-08 18:39:32
 LastEditTime: 2025-02-16 14:28:30
@@ -33,9 +35,9 @@ DOMAIN = (0, 1, 0, 10)  # (x_min, x_max, t_min, t_max)
 N_X_RES = 50
 N_T_RES = 40
 N_OBS = 1000
-N_ITERS = 20000
+N_ITERS = 50000
 NN_LAYERS = [2] + [200]*2 + [1]
-SUB_NN_LAYERS = [1] + [50]*2 + [1]
+SUB_NN_LAYERS = [1] + [50]*4 + [1]
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 W_RES = 1
@@ -51,7 +53,7 @@ data = io.loadmat(os.path.join(DATA_DIR, 'SineGordon_Inverse_Sol.mat'))
 u = data['u']  # shape (N_t, N_x)
 x = data['x'].flatten()
 t = data['t'].flatten()
-alpha = data['alpha'].flatten()
+alpha = data['param'].flatten()
 
 u_shape = u.shape
 xx, tt = np.meshgrid(x, t)
@@ -146,7 +148,17 @@ scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0
 sub_scheduler = optim.lr_scheduler.ReduceLROnPlateau(sub_optimizer, mode='min', factor=0.9, patience=1000, verbose=True)
 
 log_keys = ['iter', 'loss', 'loss_res', 'loss_obs', 'error_u', 'error_alpha']
-logger = Logger(LOG_DIR, log_keys, num_iters=N_ITERS, print_interval=100)
+logger = Logger(LOG_DIR, log_keys, num_iters=N_ITERS, print_interval=1000)
+
+def gradient_dependent_weight(pinn, data_dict, beta=1):
+    X = data_dict["X_res"]
+    x, t = pinn.split_X_columns_and_require_grad(X)
+
+    param_pred = pinn.net_param(t, column_index=-1)
+    gradient_of_param_pred = pinn.grad(param_pred, t, 1)
+    gradient_of_param_pred = gradient_of_param_pred.norm(dim=1, keepdim=True)
+    pw_w_res = 1 / (beta * gradient_of_param_pred + 1)
+    return pw_w_res
 
 # ---------------------------------
 # --- 开始训练 打印并保存训练信息 ---
@@ -159,13 +171,28 @@ for it in range(N_ITERS):
     
     pw_loss_res = loss_dict["pw_loss_res"]                  # 提取 point-wise loss
     pw_loss_obs = loss_dict["pw_loss_obs"]
-    
-    loss_res = torch.mean(pw_loss_res)                      # 计算 loss
+
+    """----------------------------------------------------------------
+    加权 loss, 优化网络参数
+    """
+    pw_w_res = gradient_dependent_weight(pinn, dataset.data_dict, beta=1)
+    loss_res = torch.mean(pw_w_res * pw_loss_res)
     loss_obs = torch.mean(pw_loss_obs)
-        
     loss = W_RES*loss_res + W_OBS*loss_obs
     
-    loss.backward()                                         # 反向传播    
+    loss.backward()                                         # 反向传播
+    """----------------------------------------------------------------
+    """
+
+    """----------------------------------------------------------------
+    原始 loss, 记录和判别最优模型
+    """
+    loss_res = torch.mean(pw_loss_res)
+    loss_obs = torch.mean(pw_loss_obs)
+    loss = W_RES*loss_res + W_OBS*loss_obs
+    """----------------------------------------------------------------
+    """
+
     optimizer.step()                                        # 更新网络参数
     sub_optimizer.step()
     scheduler.step(loss)
@@ -185,7 +212,7 @@ for it in range(N_ITERS):
         error_alpha=error_alpha
     )
     
-    if loss.item() < best_loss:                             # 保存最优模型
+    if loss.item() < best_loss:                    # 保存最优模型
         model_info = {
             'iter': it,
             'nn_sol_state': pinn.network_solution.state_dict(),
@@ -266,5 +293,5 @@ plot_solution_from_data(
 # --------------------------
 io.savemat(
     os.path.join(DATA_DIR, 'SineGordon_Inverse_Sol_PINN.mat'),
-    {'x':x, 't':t, 'u':u_pred, 'alpha':alpha_pred},
+    {'x':x, 't':t, 'u':u_pred, 'param':alpha_pred},
 )
