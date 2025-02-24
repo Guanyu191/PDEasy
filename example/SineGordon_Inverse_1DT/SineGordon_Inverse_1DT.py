@@ -279,7 +279,7 @@ plot_solution_from_data(
     sol_pred=alpha_pred,
 
     x_label='$t$',
-    y_label=r'$\lambda_1$',
+    y_label=r'$\alpha(t)$',
 
     x_ticks=np.linspace(0, 10, 6),
     y_ticks=np.linspace(0, 1.5, 4),
