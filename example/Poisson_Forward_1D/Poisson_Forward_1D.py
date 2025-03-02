@@ -16,7 +16,7 @@ sys.path.append("../../")
 
 from dataset import Dataset1D
 from pinn import PINNForward
-from network import MFF1D
+from network import *
 from utils import *
 from plotting import *
 
@@ -99,7 +99,7 @@ class PINN(PINNForward):
 # ---------------------------------------------------
 dataset = Dataset(DOMAIN)
 
-network = MFF1D(NN_LAYERS)
+network = MLP(NN_LAYERS)
 pinn = PINN(network)
 pinn.mean, pinn.std = dataset.data_dict['mean'], dataset.data_dict['std']
 
