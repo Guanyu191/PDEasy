@@ -31,13 +31,13 @@ MODEL_DIR = './model'
 
 DOMAIN = (0, 1)  # (x_min, x_max)
 
-N_BATCH = 100
-N_FUNC = 100
+N_BATCH = 500
+N_FUNC = 1000
 N_SENSOR = 100
 N_DIM = 1
 N_FUNC_TEST = 10 * N_FUNC
 
-N_ITERS = 1000
+N_ITERS = 50000
 NN_BRANCH_LAYERS = [N_SENSOR] + [40]*3
 NN_TRUNK_LAYERS = [N_DIM] + [40]*2
 
@@ -116,8 +116,8 @@ class DeepONet(DeepONetForward):
 # ---------------------------------------------------
 dataset = Dataset(DOMAIN)
 
-network_branch = MLP(NN_BRANCH_LAYERS)
-network_trunk = MLP(NN_TRUNK_LAYERS)
+network_branch = MLP(NN_BRANCH_LAYERS, act_type='relu')
+network_trunk = MLP(NN_TRUNK_LAYERS, act_type='relu')
 deeponet = DeepONet(network_branch, network_trunk)
 deeponet.F_mean, deeponet.F_std = dataset.data_dict['F_mean'], dataset.data_dict['F_std']
 deeponet.X_mean, deeponet.X_std = dataset.data_dict['X_mean'], dataset.data_dict['X_std']
