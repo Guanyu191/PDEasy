@@ -59,14 +59,14 @@ class MLP(nn.Module):
             self, 
             nn_layers: List[int], 
             act_type: str = 'tanh', 
-            init_type: str = 'defalut',
+            init_type: str = 'xavier_normal',
     ) -> None:
         r"""通过 list 初始化神经网络.
 
         Args:
             nn_layers (List[int]): 表示神经网络层结构的 list.
             act_type (str, optional): 激活函数. Defaults to 'tanh'.
-            init_type (str, optional): 网络参数初始化方法. Defaults to 'defalut'.
+            init_type (str, optional): 网络参数初始化方法. Defaults to 'xavier_normal'.
         """
 
         super(MLP, self).__init__()
@@ -107,14 +107,14 @@ class ModifiedMLP(nn.Module):
             self, 
             nn_layers: List[int], 
             act_type: str = 'tanh',
-            init_type: str = 'defalut',
+            init_type: str = 'xavier_normal',
     ) -> None:
         r"""通过 list 初始化神经网络.
 
         Args:
             nn_layers (List[int]): 表示神经网络层结构的 list.
             act_type (str, optional): 激活函数. Defaults to 'tanh'.
-            init_type (str, optional): 网络参数初始化方法. Defaults to 'defalut'.
+            init_type (str, optional): 网络参数初始化方法. Defaults to 'xavier_normal'.
         """
 
         super(ModifiedMLP, self).__init__()
