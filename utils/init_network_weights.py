@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch.nn.init as init
 
 
-def init_network_weights(module, init_type='default'):
+def init_network_weights(module, init_type='xavier_normal'):
     if isinstance(module, nn.Linear):
         if init_type == 'kaiming_normal':
             # Kaiming Normal 初始化
