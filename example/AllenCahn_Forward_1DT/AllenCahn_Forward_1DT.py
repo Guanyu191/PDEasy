@@ -15,7 +15,7 @@ import sys
 sys.path.append("../../")
 
 from dataset import Dataset1DT
-from pinn import PINNForward
+from framework import PINNForward
 from network import MLP
 from utils import *
 from plotting import *
@@ -33,7 +33,7 @@ DOMAIN = (-1, 1, 0, 1)  # (x_min, x_max, t_min, t_max)
 N_RES = 10000
 N_BCS = 200
 N_ICS = 200
-N_ITERS = 20000
+N_ITERS = 10000
 NN_LAYERS = [2] + [128]*4 + [1]
 W_RES = 1
 W_BCS = 1
@@ -91,7 +91,7 @@ class PINN(PINNForward):
         return loss_dict
     
     def net_res(self, X):
-        x, t = self.split_X_columns_and_require_grad(X)
+        x, t = self.split_columns_and_requires_grad(X)
         u = self.net_sol([x, t])
 
         u_t = self.grad(u, t, 1)
@@ -124,7 +124,7 @@ dataset = Dataset(DOMAIN)
 
 network = MLP(NN_LAYERS)
 pinn = PINN(network, should_normalize=False)
-# pinn.mean, pinn.std = dataset.data_dict['mean'], dataset.data_dict['std']
+pinn.X_mean, pinn.X_std = dataset.data_dict['X_mean'], dataset.data_dict['X_std']
 
 optimizer = optim.Adam(pinn.parameters(), lr=0.001)
 scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.9, patience=500, verbose=True)
@@ -171,9 +171,7 @@ for it in range(N_ITERS):
     if loss.item() < best_loss:                             # 保存最优模型
         model_info = {
             'iter': it,
-            'nn_sol_state': pinn.network_solution.state_dict(),
-            'mean': pinn.mean,
-            'std': pinn.std,
+            'nn_state': pinn.state_dict(),
         }
         torch.save(model_info, os.path.join(MODEL_DIR, 'model.pth'))
         best_loss = loss.item()
@@ -188,8 +186,7 @@ logger.save()
 logger.load()
 
 model_info = torch.load(os.path.join(MODEL_DIR, 'model.pth'))
-pinn.network_solution.load_state_dict(model_info['nn_sol_state'])
-pinn.mean, pinn.std = model_info['mean'], model_info['std']
+pinn.load_state_dict(model_info['nn_state'])
 pinn.eval()
 
 

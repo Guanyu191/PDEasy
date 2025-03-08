@@ -1,3 +1,0 @@
-Relative l2 error of u: 1.277e-02
-Relative l2 error of v: 1.389e-02
-Relative l2 error of nu: 1.192e-01

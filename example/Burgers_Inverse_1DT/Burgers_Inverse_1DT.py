@@ -15,7 +15,7 @@ import sys
 sys.path.append("../../")
 
 from dataset import Dataset1DT
-from pinn import PINNInverse
+from framework import PINNInverse
 from network import *
 from utils import *
 from plotting import *
@@ -33,7 +33,7 @@ DOMAIN = (-8, 8, 0, 10)  # (x_min, x_max, t_min, t_max)
 N_X_RES = 50
 N_T_RES = 40
 N_OBS = 1000
-N_ITERS = 20000
+N_ITERS = 2000
 NN_LAYERS = [2] + [80]*4 + [1]
 SUB_NN_LAYERS = [1] + [40]*4 + [2]
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -113,7 +113,7 @@ class PINN(PINNInverse):
         return loss_dict
     
     def net_res(self, X):
-        x, t = self.split_X_columns_and_require_grad(X)
+        x, t = self.split_columns_and_requires_grad(X)
         u = self.net_sol([x, t])
 
         u_x = self.grad(u, x, 1)
@@ -143,7 +143,7 @@ dataset = Dataset(DOMAIN)
 network = MLP(NN_LAYERS)
 sub_network = MLP(SUB_NN_LAYERS)
 pinn = PINN(network, sub_network)
-pinn.mean, pinn.std = dataset.data_dict['mean'], dataset.data_dict['std']
+pinn.X_mean, pinn.X_std = dataset.data_dict['X_mean'], dataset.data_dict['X_std']
 
 optimizer = optim.Adam(pinn.network_solution.parameters(), lr=1e-3)
 sub_optimizer = optim.Adam(pinn.network_parameter.parameters(), lr=1e-3)
@@ -191,10 +191,7 @@ for it in range(N_ITERS):
     if loss.item() < best_loss:                             # 保存最优模型
         model_info = {
             'iter': it,
-            'nn_sol_state': pinn.network_solution.state_dict(),
-            'nn_param_state': pinn.network_parameter.state_dict(),
-            'mean': pinn.mean,
-            'std': pinn.std,
+            'nn_state': pinn.state_dict(),
         }
         torch.save(model_info, os.path.join(MODEL_DIR, 'model.pth'))
         best_loss = loss.item()
@@ -209,9 +206,7 @@ logger.save()
 logger.load()
 
 model_info = torch.load(os.path.join(MODEL_DIR, 'model.pth'), map_location=DEVICE)
-pinn.network_solution.load_state_dict(model_info['nn_sol_state'])
-pinn.network_parameter.load_state_dict(model_info['nn_param_state'])
-pinn.mean, pinn.std = model_info['mean'], model_info['std']
+pinn.load_state_dict(model_info['nn_state'])
 pinn.eval()
 
 

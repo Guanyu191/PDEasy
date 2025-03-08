@@ -23,9 +23,9 @@ class _Dataset():
                 actual_type = type(v).__name__
                 raise ValueError(f"Current {k} is not a numpy array, but {actual_type}")
 
-    def statistic(self):
-        self.data_dict["mean"] = self.data_dict["X_res"].mean(axis=0)
-        self.data_dict["std"] = self.data_dict["X_res"].std(axis=0)
+    def statistic(self, object_key="X_res", axis=0):
+        self.data_dict["X_mean"] = self.data_dict[object_key].mean(axis=axis, keepdims=True)
+        self.data_dict["X_std"] = self.data_dict[object_key].std(axis=axis, keepdims=True)
 
     def first_update(self, *args, **kwargs):
         self.custom_update(*args, **kwargs)              # 加载/更新所有数据
@@ -41,7 +41,7 @@ class _Dataset():
         self.array2tensor()                              # 将数据转到 cuda
 
     def custom_update(self, *args, **kwargs):
-        NotImplementedError
+        raise NotImplementedError
 
     def external_data(self):
-        NotImplementedError
+        raise NotImplementedError

@@ -4,11 +4,12 @@ import os
 
 
 def plot_loss_from_logger(logger, figure_dir, show=True, loss_keys=None):
+    plt.rcParams.update({'font.size':18})
+    log = logger.log
+
     if loss_keys is None:
         loss_keys = [key for key in log if key.startswith("loss_")]
 
-    plt.rcParams.update({'font.size':18})
-    log = logger.log
 
     fig = plt.figure(figsize=(9, 7), dpi=64)
     ax = fig.subplots()

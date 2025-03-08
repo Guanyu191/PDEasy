@@ -3,12 +3,13 @@ import numpy as np
 import os
 
 
-def plot_error_from_logger(logger, figure_dir, show=True, error_keys=None):
-    if error_keys is None:
-        error_keys = [key for key in log if key.startswith("error_")]
-        
+def plot_error_from_logger(logger, figure_dir, show=True, error_keys=None):        
     plt.rcParams.update({'font.size':18})
     log = logger.log
+
+    if error_keys is None:
+        error_keys = [key for key in log if key.startswith("error_")]
+
 
     fig = plt.figure(figsize=(9, 7), dpi=64)
     ax = fig.subplots()
