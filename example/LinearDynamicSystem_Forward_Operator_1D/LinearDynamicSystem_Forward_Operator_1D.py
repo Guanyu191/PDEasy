@@ -37,7 +37,7 @@ N_SENSOR = 100
 N_DIM = 1
 N_FUNC_TEST = 10 * N_FUNC
 
-N_ITERS = 50000
+N_ITERS = 500
 NN_BRANCH_LAYERS = [N_SENSOR] + [40]*3
 NN_TRUNK_LAYERS = [N_DIM] + [40]*2
 
@@ -151,8 +151,8 @@ for it in range(N_ITERS):
 
     with torch.no_grad():
         idx = torch.randperm(U_test.shape[0])[:100]
-        U_teset_pred = deeponet.net_sol(F_test, X_test)
-        loss_test = torch.mean((U_teset_pred - U_test) ** 2)
+        U_teset_pred = deeponet.net_sol(F_test[idx], X_test[idx])
+        loss_test = torch.mean((U_teset_pred - U_test[idx]) ** 2)
 
     logger.record(                                          # 保存训练信息
         iter=it,                                            # 每隔一定次数自动打印
