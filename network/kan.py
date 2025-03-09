@@ -1,7 +1,10 @@
-r"""KAN 模型.
+r"""KAN model.
 
-参考自 
+Referenced from 
 https://github.com/yizheng-wang/Research-on-Solving-Partial-Differential-Equations-of-Solid-Mechanics-Based-on-PINN
+
+TODO:
+    - [ ] Add support for example.
 """
 
 import torch

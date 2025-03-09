@@ -1,7 +1,7 @@
 from typing import List, Tuple, Union
 
 import torch
-from framework.base import _PINN
+from framework.framework_base import _PINN
 
 
 class PINNForward(_PINN):
@@ -10,8 +10,7 @@ class PINNForward(_PINN):
             network_solution: torch.nn.Module, 
             should_normalize: bool = True
     ):
-        """
-        Initialize a forward Physics-Informed Neural Network (PINN) model.
+        r"""Initialize a forward Physics-Informed Neural Network (PINN) model.
 
         This forward PINN model is designed to approximate the solution of a physical system.
         It takes a neural network module for solution approximation and an optional flag for

@@ -1,7 +1,7 @@
 from typing import List, Tuple, Union
 
 import torch
-from framework.base import _NN
+from framework.framework_base import _NN
 
 
 class NNForward(_NN):
@@ -10,8 +10,7 @@ class NNForward(_NN):
             network_solution: torch.nn.Module, 
             should_normalize: bool = True
     ):
-        """
-        Initialize an instance of the NNForward class.
+        r"""Initialize an instance of the NNForward class.
 
         This class represents a forward neural network model for approximating solutions.
         It allows for optional normalization of input and output data.

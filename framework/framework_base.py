@@ -73,8 +73,10 @@ def _grad(
 
 
 class _NN(nn.Module):
+    r"""The base class of the data-driven class models.
+    """
     def __init__(self):
-        """Initialize the _NN base class.
+        r"""Initialize the _NN base class.
 
         This class serves as a base for neural network models. It sets up the device
         to be used for computations, either CUDA if available or CPU.
@@ -107,6 +109,8 @@ class _NN(nn.Module):
 
 
 class _PINN(_NN):
+    r"""The base class of the physically driven class models.
+    """
     def __init__(self):
         super(_PINN, self).__init__()
 
@@ -122,7 +126,7 @@ class _PINN(_NN):
         inputs:torch.Tensor, 
         n_order:int = 1
     ) -> torch.Tensor:
-        """Compute the specified order gradient of the outputs with respect to the inputs.
+        r"""Compute the specified order gradient of the outputs with respect to the inputs.
 
         This static method calculates the gradient of a given order for the outputs 
         relative to the inputs. It uses the underlying `_grad` function to perform 
@@ -142,7 +146,7 @@ class _PINN(_NN):
     def split_columns_and_requires_grad(
         X:torch.Tensor
     ) -> Union[torch.Tensor, List[torch.Tensor]]:
-        """Split the columns of a tensor and set the 'requires_grad' attribute to True.
+        r"""Split the columns of a tensor and set the 'requires_grad' attribute to True.
 
         This method is a wrapper for the internal '_split_columns_and_requires_grad' function.
         It takes a 2D tensor as input, splits its columns, and ensures that gradient computation

@@ -1,7 +1,7 @@
 from typing import List, Tuple, Union
 
 import torch
-from framework.base import _PINN
+from framework.framework_base import _PINN
 
 
 class PINNInverse(_PINN):
@@ -11,8 +11,7 @@ class PINNInverse(_PINN):
             network_parameter: torch.nn.Module, 
             should_normalize: bool = True
         ):
-        """
-        Initialize an inverse Physics-Informed Neural Network (PINN) model.
+        r"""Initialize an inverse Physics-Informed Neural Network (PINN) model.
 
         This inverse PINN model is designed to estimate unknown parameters in a physical system.
         It takes two neural networks as inputs: one for approximating the solution and another

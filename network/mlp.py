@@ -1,13 +1,15 @@
-r"""MLP 类神经网络模型.
+r"""MLP type neural network models.
 
-MLP 类神经网络模型包括:
-    1. 普通的 MLP.
-    2. 改进的 ModifiedMLP, 参考自 https://epubs.siam.org/doi/10.1137/20M1318043
+The MLP type neural network models include:
+    1. Ordinary MLP.
+    2. Improved ModifiedMLP, referenced from https://epubs.siam.org/doi/10.1137/20M1318043
 
-生成网络实例仅需要传入一个 list, 表示神经网络的层数和每层的神经元数量.
-另外, 可以调整激网络的激活函数, 以及网络参数初始化的方法.
+To create a network instance, simply pass in a list representing the number of layers 
+and the number of neurons in each layer of the neural network.
+In addition, you can adjust the activation function of the network and the method 
+for initializing network parameters.
 
-网络的激活函数默认为 Tanh, 其余可以选择:
+The default activation function of the network is Tanh. Other options include:
     1. ReLU
     2. LeakyReLU
     3. Tanh
@@ -20,7 +22,7 @@ MLP 类神经网络模型包括:
     10. RReLU
     11. ELU
 
-网络参数初始化方法默认为 default, 即采用 PyTorch 自带的初始化方案, 其余可以选择:
+The default method for initializing network parameters is "xavier_normal". Other options include:
     1. kaiming_normal
     2. kaiming_uniform
     3. xavier_normal
@@ -29,7 +31,7 @@ MLP 类神经网络模型包括:
     6. uniform
     7. constant
     8. default
-    
+
 Example::
     >>> NN_LAYERS = [2, 20, 20, 1]
     >>> network = MLP(NN_LAYERS)
@@ -49,7 +51,7 @@ from torch import Tensor
 class MLP(nn.Module):
     r"""Muti-layer perceptron (MLP) / fully-connected neural network (FNN).
 
-    最基础的神经网络模型.
+    The most fundamental neural network model.
 
     Example::
         >>> NN_LAYERS = [2, 20, 20, 1]
@@ -60,13 +62,22 @@ class MLP(nn.Module):
             nn_layers: List[int], 
             act_type: str = 'tanh', 
             init_type: str = 'xavier_normal',
-    ) -> None:
-        r"""通过 list 初始化神经网络.
+    ):
+        r"""
+        Initialize a Multi - layer Perceptron (MLP) neural network.
 
         Args:
-            nn_layers (List[int]): 表示神经网络层结构的 list.
-            act_type (str, optional): 激活函数. Defaults to 'tanh'.
-            init_type (str, optional): 网络参数初始化方法. Defaults to 'xavier_normal'.
+            nn_layers (List[int]): A list representing the layer structure of the neural network. 
+                For example, [2, 20, 20, 1] means 2 neurons in the input layer, 
+                two hidden layers with 20 neurons each, and 1 neuron in the output layer.
+            act_type (str, optional): The type of activation function. Defaults to 'tanh'. 
+                Other available options include 'ReLU', 'LeakyReLU', etc.
+            init_type (str, optional): The method for initializing network parameters. 
+                Defaults to 'xavier_normal'. Other options include 'kaiming_normal', etc.
+
+        Attributes:
+            args (dict): A dictionary storing all input arguments for later reference.
+            model (nn.Sequential): A sequential container that holds the entire neural network model, including all layers.
         """
 
         super(MLP, self).__init__()
@@ -96,8 +107,8 @@ class MLP(nn.Module):
 class ModifiedMLP(nn.Module):
     r"""Modified Multi-layer perceptron (MMLP).
 
-    对 MLP 增加了注意力机制.
-    参考自: https://epubs.siam.org/doi/10.1137/20M1318043
+    An attention mechanism is added to the MLP.
+    Referenced from: https://epubs.siam.org/doi/10.1137/20M1318043
 
     Example::
         >>> NN_LAYERS = [2, 20, 20, 1]
@@ -108,13 +119,24 @@ class ModifiedMLP(nn.Module):
             nn_layers: List[int], 
             act_type: str = 'tanh',
             init_type: str = 'xavier_normal',
-    ) -> None:
-        r"""通过 list 初始化神经网络.
+    ):
+        r"""
+        Initialize a Modified Multi - layer Perceptron (ModifiedMLP) neural network.
 
         Args:
-            nn_layers (List[int]): 表示神经网络层结构的 list.
-            act_type (str, optional): 激活函数. Defaults to 'tanh'.
-            init_type (str, optional): 网络参数初始化方法. Defaults to 'xavier_normal'.
+            nn_layers (List[int]): A list representing the layer structure of the neural network. 
+                For example, [2, 20, 20, 1] indicates 2 neurons in the input layer, 
+                two hidden layers with 20 neurons each, and 1 neuron in the output layer.
+            act_type (str, optional): The type of activation function to be used in the network. 
+                Defaults to 'tanh'. Other available options are 'ReLU', 'LeakyReLU', etc.
+            init_type (str, optional): The method for initializing the network parameters. 
+                Defaults to 'xavier_normal'. Other options include 'kaiming_normal', etc.
+
+        Attributes:
+            args (dict): A dictionary that stores all the input arguments for future reference.
+            encoder_u (nn.Sequential): A sequential container for the encoder 'u' that processes the input data.
+            encoder_v (nn.Sequential): A sequential container for the encoder 'v' that processes the input data.
+            model (nn.Sequential): A sequential container that holds the main part of the neural network model, excluding the encoders.
         """
 
         super(ModifiedMLP, self).__init__()

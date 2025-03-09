@@ -1,7 +1,7 @@
 from typing import List, Tuple, Union
 
 import torch
-from framework.base import _NN
+from framework.framework_base import _NN
 
 
 class DeepONetForward(_NN):
@@ -13,7 +13,7 @@ class DeepONetForward(_NN):
             num_outputs: int = 1,
             should_normalize: bool = True
     ):
-        """Initialize a DeepONetForward model.
+        r"""Initialize a DeepONetForward model.
 
         This class represents the forward pass of a DeepONet architecture. A DeepONet consists of 
         a branch network and a trunk network. The branch network processes the input functions, 

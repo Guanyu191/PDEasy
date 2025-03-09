@@ -4,8 +4,25 @@ import torch
 
 class _Dataset():
     def __init__(self):
+        r"""Initialize the dataset object.
+
+        This method is responsible for setting up the device and initializing the data dictionary.
+        The device is selected based on whether CUDA is available. The data dictionary will be used to
+        store various types of data that will be loaded and processed later.
+
+        Args:
+            None
+
+        Attributes:
+            device (torch.device): The device used to store and process data, preferring CUDA if available.
+            data_dict (dict): An empty dictionary used to store different types of data in the dataset.
+
+        Note:
+            The `data_dict` is one of the cores of PDEasy. All data flow, including data generation
+            and passing data into the model for training, occurs in the form of the `data_dict`.
+        """
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.data_dict = {}  # data dictionary 将数据存放于字典
+        self.data_dict = {}
 
     def array2tensor(self):
         for k, v in self.data_dict.items():
@@ -28,17 +45,14 @@ class _Dataset():
         self.data_dict["X_std"] = self.data_dict[object_key].std(axis=axis, keepdims=True)
 
     def first_update(self, *args, **kwargs):
-        self.custom_update(*args, **kwargs)              # 加载/更新所有数据
-
-        self.statistic()                                 # 计算数据的统计信息，用作标准化
-        self.array2tensor()                              # 将数据转到 cuda
+        self.custom_update(*args, **kwargs)
+        self.statistic()
+        self.array2tensor()
 
     def update(self, *args, **kwargs):
         self.tensor2array()
-
-        self.custom_update(*args, **kwargs)              # 加载/更新所有数据
-        
-        self.array2tensor()                              # 将数据转到 cuda
+        self.custom_update(*args, **kwargs)
+        self.array2tensor()
 
     def custom_update(self, *args, **kwargs):
         raise NotImplementedError

@@ -1,7 +1,7 @@
 from typing import List, Tuple, Union
 
 import torch
-from framework.base import _PINN
+from framework.framework_base import _PINN
 
 
 class PIDeepONetForward(_PINN):
@@ -13,8 +13,7 @@ class PIDeepONetForward(_PINN):
             num_outputs: int = 1,
             should_normalize: bool = True
     ):
-        """
-        Initialize an instance of the PIDeepONetForward class.
+        r"""Initialize an instance of the PIDeepONetForward class.
 
         This class represents a forward model of the Physics-Informed Deep Operator Network.
         It combines a branch network and a trunk network to approximate solutions of a physical system.

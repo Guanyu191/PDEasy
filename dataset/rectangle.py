@@ -1,27 +1,28 @@
-"""矩形域数据集.
+r"""Rectangular domain dataset.
 
-用以生成矩形域的内部点, 边界点, 以及初始点. 可选择随机采样或网格采样.
+This dataset is used to generate interior points, boundary points, and initial points of a rectangular domain.
+Random sampling or grid sampling can be selected.
 
-具体包括如下 4 类:
-    1. Dataset1D: 1D 空间的矩形域.
-    2. Dataset1DT: 1D 空间 + 时间的矩形域.
-    3. Dataset2D: 2D 空间的矩形域.
-    4. Dataset2DT: 2D 空间 + 时间的矩形域.
+Specifically, it includes the following 4 types:
+    1. Dataset1D: A rectangular domain in 1D space.
+    2. Dataset1DT: A rectangular domain in 1D space + time.
+    3. Dataset2D: A rectangular domain in 2D space.
+    4. Dataset2DT: A rectangular domain in 2D space + time.
 
 TODO:
-    1. 增加高维空间 (+ 时间) 的矩形域.
-    2. 增加 L shape 区域.
-    3. 增加圆形域和高维球形域.
-    4. 增加 LHS 等其它采样方法.
+    1. Add rectangular domains in high - dimensional space (+ time).
+    2. Add L - shaped regions.
+    3. Add circular domains and high - dimensional spherical domains.
+    4. Add other sampling methods such as LHS.
 
 Example::
-    >>> # 定义超参数
+    >>> # Define hyperparameters
     >>> DOMAIN = (-1, 1, 0, 1)  # (x_min, x_max, t_min, t_max)
     >>> N_RES = 2000
     >>> N_BCS = 200
     >>> N_ICS = 200
     >>> 
-    >>> # 根据需求继承类
+    >>> # Inherit the class according to requirements
     >>> class Dataset(Dataset1DT):
     >>>     def __init__(self, domain):
     >>>         super().__init__(domain)
@@ -31,7 +32,7 @@ Example::
     >>>         self.boundary_random(n_bcs)
     >>>         self.initial_random(n_ics)
     >>>
-    >>> # 创建数据集实例
+    >>> # Create a dataset instance
     >>> dataset = Dataset(DOMAIN)
 """
 

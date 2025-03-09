@@ -1,13 +1,17 @@
-r"""Multi-Head Network 类神经网络模型.
+r"""Multi-Head Network type neural network models.
 
-Multi-Head Network 类神经网络模型包括:
-    1. 最后两层分头输出的 MHN.
-    2. TODO
+The Multi-Head Network type neural network models include:
+    1. MHN with separate outputs in the last two layers.
 
-生成网络实例仅需要传入一个 list, 表示神经网络的层数和每层的神经元数量.
-另外, 可以调整激网络的激活函数, 以及网络参数初始化的方法.
+TODO:
+    - [ ] More MHN type models.
 
-网络的激活函数默认为 Tanh, 其余可以选择:
+To create a network instance, simply pass in a list representing the number of layers 
+and the number of neurons in each layer of the neural network.
+In addition, you can adjust the activation function of the network and the method 
+for initializing network parameters.
+
+The default activation function of the network is Tanh. Other options include:
     1. ReLU
     2. LeakyReLU
     3. Tanh
@@ -20,7 +24,7 @@ Multi-Head Network 类神经网络模型包括:
     10. RReLU
     11. ELU
 
-网络参数初始化方法默认为 default, 即采用 PyTorch 自带的初始化方案, 其余可以选择:
+The default method for initializing network parameters is "xavier_normal", Other options include:
     1. kaiming_normal
     2. kaiming_uniform
     3. xavier_normal
@@ -29,9 +33,9 @@ Multi-Head Network 类神经网络模型包括:
     6. uniform
     7. constant
     8. default
-    
+
 Example::
-    >>> NN_LAYERS = [2, 20, 20, 3]
+    >>> NN_LAYERS = [2, 20, 20, 20, 3]
     >>> network = MHN(NN_LAYERS)
 """
 import torch
@@ -45,11 +49,12 @@ from torch import Tensor
 
 
 class MHN(nn.Module):
-    """Multi-Head Network.
+    r"""Multi-Head Network.
 
-    在输出时采用多头分别输出, 适合多输出多尺度问题.
+    It uses multiple heads for separate outputs during the output stage, 
+    which is suitable for multi-output and multi-scale problems.
 
-    注意, len(nn_layers) >= 4
+    Note that len(nn_layers) >= 4.
 
     Example::
         >>> NN_LAYERS = [2, 20, 20, 3]
@@ -59,14 +64,26 @@ class MHN(nn.Module):
             self, 
             nn_layers: List[int], 
             act_type: str = 'tanh', 
-            init_type: str = 'defalut',
-        ) -> None:
-        """通过 list 初始化神经网络.
+            init_type: str = 'xavier_normal',
+        ):
+        r"""Initialize a Multi-Head Network (MHN) instance.
+
+        The MHN uses multiple heads for separate outputs during the output stage, 
+        which is suitable for multi-output and multi-scale problems.
 
         Args:
-            nn_layers (List[int]): 表示神经网络层结构的 list.
-            act_type (str, optional): 激活函数. Defaults to 'tanh'.
-            init_type (str, optional): 网络参数初始化方法. Defaults to 'defalut'.
+            nn_layers (List[int]): A list representing the number of neurons in each layer of the neural network. 
+                The length of this list should be at least 4. For example, [2, 20, 20, 3] 
+                means 2 input neurons, two hidden layers with 20 neurons each, and 3 output neurons.
+            act_type (str, optional): The type of activation function to be used in the network. 
+                Defaults to 'tanh'. Other available options include 'ReLU', 'LeakyReLU', 'Sigmoid', 'GELU', 'SELU', 'Softplus', 'Hardtanh', 'PReLU', 'RReLU', 'ELU'.
+            init_type (str, optional): The method for initializing network parameters. 
+                Defaults to 'xavier_normal'. Other options include 'kaiming_normal', 'kaiming_uniform', 'xavier_uniform', 'normal', 'uniform', 'constant', 'default'.
+
+        Attributes:
+            args (dict): A dictionary storing all input arguments for reference.
+            model (nn.Sequential): A sequential container representing the main body of the neural network, excluding the multi-head part.
+            heads (nn.ModuleList): A module list containing multiple sequential modules, each representing a head for separate output.
         """
 
         super(MHN, self).__init__()
@@ -83,7 +100,6 @@ class MHN(nn.Module):
             layer.add_module(f'act{i+1}', init_network_activation_function(act_type))
             self.model.add_module(f'layer{i+1}', layer)
 
-        # 利用 ModuleList 构造多头
         self.heads = nn.ModuleList()
         n_outputs = nn_layers[-1]
         n_hiddens = nn_layers[-2] // n_outputs
@@ -101,7 +117,6 @@ class MHN(nn.Module):
     def forward(self, X):
         X = self.model(X)
 
-        # 分别经过各个头 拼接输出
         out = []
         for h in self.heads:
             out.append(h(X))
