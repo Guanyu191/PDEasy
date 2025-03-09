@@ -1,37 +1,34 @@
+import warnings
 import torch.nn as nn
 import torch.nn.init as init
 
 
-def init_network_weights(module, init_type='xavier_normal'):
+def init_network_weights(module, init_type='xavier_normal', init_params=None):
+    if init_params is None:
+        init_params = {}
+
     if isinstance(module, nn.Linear):
         if init_type == 'kaiming_normal':
-            # Kaiming Normal 初始化
-            init.kaiming_normal_(module.weight)
+            init.kaiming_normal_(module.weight, **init_params)
         elif init_type == 'kaiming_uniform':
-            # Kaiming Uniform 初始化
-            init.kaiming_uniform_(module.weight)
+            init.kaiming_uniform_(module.weight, **init_params)
         elif init_type == 'xavier_normal':
-            # Xavier Normal 初始化
-            init.xavier_normal_(module.weight)
+            init.xavier_normal_(module.weight, **init_params)
         elif init_type == 'xavier_uniform':
-            # Xavier Uniform 初始化
-            init.xavier_uniform_(module.weight)
+            init.xavier_uniform_(module.weight, **init_params)
         elif init_type == 'normal':
-            # 正态分布初始化
-            init.normal_(module.weight)
+            init.normal_(module.weight, **init_params)
         elif init_type == 'uniform':
-            # 均匀分布初始化
-            init.uniform_(module.weight)
+            init.uniform_(module.weight, **init_params)
         elif init_type == 'constant':
-            # 常数初始化
-            init.constant_(module.weight, 0)
+            value = init_params.get('val', 0)
+            init.constant_(module.weight, value)
         else:
-            pass
+            warning_msg = f"Unsupported initialization type '{init_type}'. No initialization will be performed."
+            warnings.warn(warning_msg, UserWarning)
 
 
 if __name__ == '__main__':
-    # 测试示例
-    # 构建一个简单的网络
     network = nn.Sequential()
     layer = nn.Sequential()
     layer.add_module('fc1', nn.Linear(2, 5, bias=True))
@@ -47,6 +44,5 @@ if __name__ == '__main__':
     layer.add_module('fc3', nn.Linear(5, 1, bias=False))
     network.add_module('layer3', layer)
 
-    # 初始化网络权重
-    network.apply(lambda module: init_network_weights(module, 'xavier_normal'))
-    assert True
+    network.apply(lambda module: init_network_weights(module, 'uniform'))
+    assert False
