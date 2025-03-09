@@ -62,6 +62,7 @@ class MLP(nn.Module):
             nn_layers: List[int], 
             act_type: str = 'tanh', 
             init_type: str = 'xavier_normal',
+            **kwargs
     ):
         r"""
         Initialize a Multi - layer Perceptron (MLP) neural network.
@@ -85,6 +86,7 @@ class MLP(nn.Module):
             'nn_layers': nn_layers,
             'act_type': act_type,
             'init_type': init_type,
+            'kwargs': kwargs
         }
 
         self.model = nn.Sequential()
@@ -98,7 +100,7 @@ class MLP(nn.Module):
         layer.add_module(f'fc_{len(nn_layers)-1}', nn.Linear(nn_layers[-2], nn_layers[-1], bias=False))
         self.model.add_module(f'layer_{len(nn_layers)-1}', layer)
 
-        self.apply(lambda module: init_network_weights(module, init_type))
+        self.apply(lambda module: init_network_weights(module, init_type, kwargs))
 
     def forward(self, X: Tensor) -> Tensor:
         return self.model(X)
@@ -119,6 +121,7 @@ class ModifiedMLP(nn.Module):
             nn_layers: List[int], 
             act_type: str = 'tanh',
             init_type: str = 'xavier_normal',
+            **kwargs
     ):
         r"""
         Initialize a Modified Multi - layer Perceptron (ModifiedMLP) neural network.
@@ -144,6 +147,7 @@ class ModifiedMLP(nn.Module):
             'nn_layers': nn_layers,
             'act_type': act_type,
             'init_type': init_type,
+            'kwargs': kwargs
         }
 
         self.encoder_u = nn.Sequential()
@@ -166,7 +170,7 @@ class ModifiedMLP(nn.Module):
             f'fc_{len(nn_layers)-1}', nn.Linear(nn_layers[-2], nn_layers[-1], bias=False))
         self.model.add_module(f'layer_{len(nn_layers)-1}', last_layer)
 
-        self.apply(lambda module: init_network_weights(module, init_type))
+        self.apply(lambda module: init_network_weights(module, init_type, kwargs))
 
     def forward(self, X: Tensor) -> Tensor:
         u = self.encoder_u(X)
