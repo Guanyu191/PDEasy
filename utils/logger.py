@@ -1,9 +1,3 @@
-'''
-Descripttion: 
-Author: Guanyu
-Date: 2025-02-08 14:57:49
-LastEditTime: 2025-02-09 14:20:50
-'''
 import os
 import time
 import torch
@@ -14,9 +8,7 @@ from utils.elapsed_time import elapsed_time
 
 class Logger:
     def __init__(self, log_dir, log_keys=['iter', 'loss'], num_iters=1000, print_interval=100):
-        # Directory to store logs
         self.log_dir = log_dir
-
         self.log_keys = log_keys
         self.log = {key: [] for key in self.log_keys}
         self.num_iters = num_iters
@@ -26,24 +18,19 @@ class Logger:
 
     def record(self, **kwargs):
         """Record the training information for each iteration."""
-        # Iterate through the provided key-value pairs
         for key, value in kwargs.items():
             if isinstance(value, torch.Tensor):
                 value = value.item()
 
-            # If the key is already in the log, append the value
             if key in self.log:
                 self.log[key].append(value)
             else:
-                # If the key is not in the log, initialize it
                 self.log[key] = [value]
 
-        # Print the logs if the iteration is a multiple of the print interval
         if self.current_iter % self.print_interval == 0:
             self._print_logs()
             self.save()
 
-        # Increment the iteration counter
         self.current_iter += 1
 
     def _print_logs(self):
