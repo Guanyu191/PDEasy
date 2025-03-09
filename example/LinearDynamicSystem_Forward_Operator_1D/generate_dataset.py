@@ -81,7 +81,7 @@ if __name__ == '__main__':
     from scipy.io import savemat
 
     DOMAIN = (0, 1)
-    N_FUNC = 100
+    N_FUNC = 1000
     N_SENSOR = 100
     N_LOC = 100
     LENGTH_SCALE = 0.2
