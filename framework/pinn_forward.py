@@ -10,6 +10,27 @@ class PINNForward(_PINN):
             network_solution: torch.nn.Module, 
             should_normalize: bool = True
     ):
+        """
+        Initialize a forward Physics-Informed Neural Network (PINN) model.
+
+        This forward PINN model is designed to approximate the solution of a physical system.
+        It takes a neural network module for solution approximation and an optional flag for
+        data normalization.
+
+        Args:
+            network_solution (torch.nn.Module): 
+                A PyTorch neural network module used to approximate the solution of the physical system.
+            should_normalize (bool, optional): 
+                A boolean flag indicating whether to enable automatic normalization of input and output data. Defaults to True.
+
+        Attributes:
+            network_solution (torch.nn.Module): The neural network for solution approximation.
+            should_normalize (bool): Flag indicating whether normalization is enabled.
+            X_mean (torch.Tensor): Buffer to store the mean of input coordinates for normalization.
+            X_std (torch.Tensor): Buffer to store the standard deviation of input coordinates for normalization.
+            U_mean (torch.Tensor): Buffer to store the mean of solution outputs for denormalization.
+            U_std (torch.Tensor): Buffer to store the standard deviation of solution outputs for denormalization.
+        """
         super(PINNForward, self).__init__()
         self.network_solution = network_solution
         self.should_normalize = should_normalize

@@ -13,6 +13,37 @@ class PIDeepONetForward(_PINN):
             num_outputs: int = 1,
             should_normalize: bool = True
     ):
+        """
+        Initialize an instance of the PIDeepONetForward class.
+
+        This class represents a forward model of the Physics-Informed Deep Operator Network.
+        It combines a branch network and a trunk network to approximate solutions of a physical system.
+
+        Args:
+            network_branch (torch.nn.Module): 
+                The branch network that processes the input functions.
+            network_trunk (torch.nn.Module): 
+                The trunk network that processes the input coordinates.
+            activation_trunk (torch.nn.Module, optional): 
+                The activation function for the trunk network. Defaults to torch.tanh.
+            num_outputs (int, optional): 
+                The number of outputs of the model. Defaults to 1.
+            should_normalize (bool, optional): 
+                Whether to normalize the inputs and outputs. Defaults to True.
+
+        Attributes:
+            network_branch (torch.nn.Module): The branch network.
+            network_trunk (torch.nn.Module): The trunk network.
+            activation_trunk (torch.nn.Module): The activation function for the trunk network.
+            should_normalize (bool): Flag indicating whether normalization should be applied.
+            bias_last (torch.nn.Parameter): The bias parameter for the last layer.
+            F_mean (torch.Tensor): Buffer for the mean of the branch network inputs.
+            F_std (torch.Tensor): Buffer for the standard deviation of the branch network inputs.
+            X_mean (torch.Tensor): Buffer for the mean of the trunk network inputs.
+            X_std (torch.Tensor): Buffer for the standard deviation of the trunk network inputs.
+            U_mean (torch.Tensor): Buffer for the mean of the solution outputs.
+            U_std (torch.Tensor): Buffer for the standard deviation of the solution outputs.
+        """
         super(PIDeepONetForward, self).__init__()
         self.network_branch = network_branch
         self.network_trunk = network_trunk

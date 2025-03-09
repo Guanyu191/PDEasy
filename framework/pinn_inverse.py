@@ -11,7 +11,35 @@ class PINNInverse(_PINN):
             network_parameter: torch.nn.Module, 
             should_normalize: bool = True
         ):
+        """
+        Initialize an inverse Physics-Informed Neural Network (PINN) model.
 
+        This inverse PINN model is designed to estimate unknown parameters in a physical system.
+        It takes two neural networks as inputs: one for approximating the solution and another
+        for estimating the parameters. Additionally, it supports optional normalization of
+        input and output data.
+
+        Args:
+            network_solution (torch.nn.Module): 
+                A PyTorch neural network module used to approximate the solution of the physical system.
+            network_parameter (torch.nn.Module): 
+                A PyTorch neural network module used to estimate the unknown parameters of the physical system.
+            should_normalize (bool, optional): 
+                A boolean flag indicating whether to enable automatic normalization of input and output data.
+                If set to True, the model will normalize the input coordinates and denormalize the output
+                solution and parameters. Defaults to True.
+
+        Attributes:
+            network_solution (torch.nn.Module): The neural network for solution approximation.
+            network_parameter (torch.nn.Module): The neural network for parameter estimation.
+            should_normalize (bool): Flag indicating whether normalization is enabled.
+            X_mean (torch.Tensor): Buffer to store the mean of input coordinates for normalization.
+            X_std (torch.Tensor): Buffer to store the standard deviation of input coordinates for normalization.
+            U_mean (torch.Tensor): Buffer to store the mean of solution outputs for denormalization.
+            U_std (torch.Tensor): Buffer to store the standard deviation of solution outputs for denormalization.
+            P_mean (torch.Tensor): Buffer to store the mean of parameter estimates for denormalization.
+            P_std (torch.Tensor): Buffer to store the standard deviation of parameter estimates for denormalization.
+        """
         super(PINNInverse, self).__init__()
         self.network_solution = network_solution
         self.network_parameter = network_parameter
