@@ -1,12 +1,13 @@
-# PDEasy ​(​0​.​1​.​0​)​ :zap:
+# PDEasy ​(​0​.​1​.​1)​ :zap:
 
 [![PyPI Version](https://img.shields.io/pypi/v/pdeasy)](https://pypi.org/project/pdeasy/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Documentation Status](https://img.shields.io/badge/docs-latest-brightgreen)](https://your-docs-url)
 
-**PDEasy: Lightweight PINN-PDE Solver for Research, Balancing Abstraction and Flexibility for Algorithm Innovation.**
+**PDEasy: Lightweight PINN & Operator PDE Solver for Research, Balancing Abstraction and Flexibility for Algorithm Innovation.**
 
 > **Note:** 目前, 关于 PINN (Physics-Informed Neural Networks) 的 Python 库大都封装程度较高, 主要面向工程部署或新手入门. 然而, 对于 PINN 相关科研工作者来说, 通过较高封装的代码去实现自己的 idea 是非常困难的. 因此, 我们希望写一套面向科研工作者的 PINN-PDE 求解库, 平衡封装程度与扩展性, 使得用户能够快速实现新的 idea, 加速算法创新.
+
+> **Log:** 0.1.0 -> 0.1.1, 兼容了算子学习框架.
 
 ## :rocket: Key Features
 
@@ -34,29 +35,19 @@
 
 目前仅支持下载压缩包使用.
 
-> **Note:** 由于我们不是计算机出身, 所以这个项目比较朴素, 仅仅从日常科研需求沉淀形成. 后续完善后会增加安装方法.
-
 ## :hourglass_flowing_sand: Quick Start
-这里我们以 Burgers 方程正问题为例, 介绍 PDEasy 的使用方法.
+这里我们以 Burgers 方程正问题为例, 介绍 PDEasy 的使用方法. 完整代码见 `./example/Burgers_Forward_1DT/Burgers_Forward_1DT.py`.
 
 > **Note:** 在 `example`文件夹中, 我们实现了 1D, 2D 空间 (和时间)的算例, 包括正问题和反问题, 共有 7 个. 其中, 结合了 MLP, ResNet, Fourier Feature Network, Multi-Head Network 等各种网络类型, 以及展示了边界约束, 尺度放缩, 自适应 loss 权重等算法的融合, 后续会公开更多的算例.
 
 ### 0. 导入库
 
 ```python
-import os
-import numpy as np
-import scipy.io as io
-import torch
-import torch.nn as nn
-import torch.optim as optim
-
-# 为了导入 PDEasy 项目文件
 import sys
 sys.path.append("../../")
 
 from dataset import Dataset1DT
-from pinn import PINNForward
+from framework import PINNForward
 from network import MLP
 from utils import *
 from plotting import *
@@ -70,12 +61,12 @@ FIGURE_DIR = './figure'
 LOG_DIR = './log'
 MODEL_DIR = './model'
 
-DOMAIN = (-1, 1, 0, 1)  # (x_min, x_max, t_min, t_max)
-N_RES = 2000
-N_BCS = 200
-N_ICS = 200
-N_ITERS = 20000
-NN_LAYERS = [2] + [40]*4 + [1]
+DOMAIN = (-1, 1, 0, 1)  			# (x_min, x_max, t_min, t_max)
+N_RES = 2000    					# 内部点数量
+N_BCS = 200	    					# 边界点数量
+N_ICS = 200	    					# 初始点数量
+N_ITERS = 20000    					# 网络训练迭代次数
+NN_LAYERS = [2] + [40]*4 + [1]		# 网络层
 ```
 
 ### 2. 定义数据集
@@ -86,9 +77,9 @@ class Dataset(Dataset1DT):
         super().__init__(domain)
 
     def custom_update(self, n_res=N_RES, n_bcs=N_BCS, n_ics=N_ICS):
-        self.interior_random(n_res)
-        self.boundary_random(n_bcs)
-        self.initial_random(n_ics)
+        self.interior_random(n_res)    # 在内部随机采样 n_res 个点
+        self.boundary_random(n_bcs)    # 在边界随机采样 n_res 个点
+        self.initial_random(n_ics)     # 在初始时刻随机采样 n_res 个点
 ```
 
 ### 3. 定义 PINN 模型
@@ -112,53 +103,36 @@ class PINN(PINNForward):
         return loss_dict
     
     def net_res(self, X):
-        x, t = self.split_X_columns_and_require_grad(X)
-        u = self.net_sol([x, t])
+        x, t = self.split_columns_and_requires_grad(X)			# 将多列的输入分别提取出来
+        u = self.net_sol([x, t])								# 获得输出解
 
-        u_x = self.grad(u, x, 1)  # 更简单的求导写法
-        u_t = self.grad(u, t, 1)
-        u_xx = self.grad(u, x, 2)
-        res_pred = u_t + u * u_x - (0.01 / torch.pi) * u_xx
+        u_x = self.grad(u, x, 1)								# 求 u 对 x 的 1 阶导
+        u_t = self.grad(u, t, 1)								# 求 u 对 t 的 1 阶导
+        u_xx = self.grad(u, x, 2)								# 求 u 对 x 的 2 阶导
+        res_pred = u_t + u * u_x - (0.01 / torch.pi) * u_xx		# 构造方程残差
         return res_pred
     
     def net_bcs(self, X):
-        u = self.net_sol(X)
-        bcs_pred = u - 0
+        u = self.net_sol(X)										# 获得输出解
+        bcs_pred = u - 0										# 构造边界条件残差
         return bcs_pred
     
     def net_ics(self, X):
-        u = self.net_sol(X)
-        ics_pred = u + torch.sin(torch.pi * X[:, [0]])
+        u = self.net_sol(X)										# 获得输出解
+        ics_pred = u + torch.sin(torch.pi * X[:, [0]])			# 构造初始条件残差
         return ics_pred
 ```
 
 ### 4. 训练模型
 
-#### 4.1 导入参照解
+#### 4.1 初始化训练实例
 
 ```python
-init_dir(DATA_DIR, FIGURE_DIR, LOG_DIR, MODEL_DIR)
+dataset = Dataset(DOMAIN)		# 生成数据集实例
 
-data = io.loadmat(os.path.join(DATA_DIR, 'Burgers_Sol.mat'))
-u = data['u']  # shape (N_t, N_x)
-x = data['x'].flatten()
-t = data['t'].flatten()
-
-u_shape = u.shape
-xx, tt = np.meshgrid(x, t)
-xx, tt, u = xx.flatten(), tt.flatten(), u.flatten()
-
-X = np.stack([xx, tt], axis=1)
-```
-
-#### 4.2 初始化训练实例
-
-```python
-dataset = Dataset(DOMAIN)
-
-network = MLP(NN_LAYERS)
-pinn = PINN(network)
-pinn.mean, pinn.std = dataset.data_dict['mean'], dataset.data_dict['std']
+network = MLP(NN_LAYERS)		# 生成网络实例
+pinn = PINN(network)			# 生成 PINN 实例
+pinn.X_mean, pinn.X_std = dataset.data_dict['X_mean'], dataset.data_dict['X_std']
 
 optimizer = optim.Adam(pinn.parameters(), lr=0.001)
 
@@ -167,7 +141,7 @@ logger = Logger(LOG_DIR, log_keys, num_iters=N_ITERS, print_interval=100)
 
 ```
 
-#### 4.3 训练
+#### 4.2 训练
 
 ```python
 best_loss = np.inf
@@ -180,7 +154,7 @@ for it in range(N_ITERS):
     pw_loss_ics = loss_dict["pw_loss_ics"]
     
     loss_res = torch.mean(pw_loss_res)                      # 计算 loss
-    loss_bcs = torch.mean(pw_loss_bcs)
+    loss_bcs = torch.mean(pw_loss_bcs)						# 可以引入权重算法
     loss_ics = torch.mean(pw_loss_ics)
         
     loss = loss_res + loss_bcs + loss_ics
@@ -205,9 +179,7 @@ for it in range(N_ITERS):
     if loss.item() < best_loss:                             # 保存最优模型
         model_info = {
             'iter': it,
-            'nn_sol_state': pinn.network_solution.state_dict(),
-            'mean': pinn.mean,
-            'std': pinn.std,
+            'nn_state': pinn.state_dict(),
         }
         torch.save(model_info, os.path.join(MODEL_DIR, 'model.pth'))
         best_loss = loss.item()
@@ -215,8 +187,6 @@ for it in range(N_ITERS):
 logger.print_elapsed_time()
 logger.save()
 ```
-
-![训练过程截图](README.assets/训练过程截图.png)
 
 ### 5. 评估与可视化
 
@@ -226,8 +196,7 @@ logger.save()
 logger.load()
 
 model_info = torch.load(os.path.join(MODEL_DIR, 'model.pth'))
-pinn.network_solution.load_state_dict(model_info['nn_sol_state'])
-pinn.mean, pinn.std = model_info['mean'], model_info['std']
+pinn.load_state_dict(model_info['nn_state'])
 pinn.eval()
 ```
 
@@ -237,10 +206,6 @@ pinn.eval()
 plot_loss_from_logger(logger, FIGURE_DIR, show=True)
 plot_error_from_logger(logger, FIGURE_DIR, show=True)
 ```
-
-<img src="README.assets/loss.png" alt="loss" style="zoom:50%;" />
-
-<img src="README.assets/error.png" alt="error" style="zoom:50%;" />
 
 #### 5.3 可视化 solution
 
@@ -265,8 +230,6 @@ plot_solution_from_data(
     title_right=r'Absolute error'
 )
 ```
-
-![Sol_PINN](README.assets/Sol_PINN.png)
 
 ## :books: Documentation
 TODO.
