@@ -7,7 +7,11 @@
 
 > **Note:** 目前, 关于 PINN (Physics-Informed Neural Networks) 的 Python 库大都封装程度较高, 主要面向工程部署或新手入门. 然而, 对于 PINN 相关科研工作者来说, 通过较高封装的代码去实现自己的 idea 是非常困难的. 因此, 我们希望写一套面向科研工作者的 PINN-PDE 求解库, 平衡封装程度与扩展性, 使得用户能够快速实现新的 idea, 加速算法创新.
 
-> **Log:** 0.1.0 -> 0.1.1, 兼容了算子学习框架.
+> **Log:**
+>
+> - 0.1.0，实现了 PINN 求解正反问题的框架，支持多输入输出、便捷求导等.
+> - 0.1.1，实现了 DeepONet 求解 1D 算例，将 `pinn` 重构为 `framework`，兼容算子学习框架.
+> - 0.1.2，实现了 Physics-informed DeepONet 求解 1D 算例，增加了高频问题的算例.
 
 ## :rocket: Key Features
 
