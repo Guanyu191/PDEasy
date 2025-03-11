@@ -9,7 +9,7 @@ class DeepONetForward(_NN):
             self, 
             network_branch: torch.nn.Module, 
             network_trunk: torch.nn.Module, 
-            activation_trunk: torch.nn.Module = torch.nn.ReLU(),
+            activation_trunk: torch.nn.Module = torch.nn.Tanh(),
             num_outputs: int = 1,
             should_normalize: bool = True
     ):
