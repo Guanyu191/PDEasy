@@ -1,4 +1,4 @@
-# PDEasy ​(​0​.​1​.​1)​ :zap:
+# PDEasy ​(​0​.​1​.​2)​ :zap:
 
 [![PyPI Version](https://img.shields.io/pypi/v/pdeasy)](https://pypi.org/project/pdeasy/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -13,7 +13,12 @@
 > - 0.1.1，实现了 DeepONet 求解 1D 算例，将 `pinn` 重构为 `framework`，兼容算子学习框架.
 > - 0.1.2，实现了 Physics-informed DeepONet 求解 1D 算例，增加了高频问题的算例.
 
-## :rocket: Key Features
+## :rocket: Reference
+
+> 1. ...
+> 2. ...
+
+## 🔑 Key Features
 
 ### 1. PINN 求解流程化
 
