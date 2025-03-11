@@ -9,7 +9,7 @@ class DeepONetForward(_NN):
             self, 
             network_branch: torch.nn.Module, 
             network_trunk: torch.nn.Module, 
-            activation_trunk: torch.nn.Module = torch.tanh,
+            activation_trunk: torch.nn.Module = torch.nn.ReLU(),
             num_outputs: int = 1,
             should_normalize: bool = True
     ):
@@ -26,7 +26,7 @@ class DeepONetForward(_NN):
             network_trunk (torch.nn.Module): The trunk network module that maps input coordinates 
                 to a feature space.
             activation_trunk (torch.nn.Module, optional): The activation function applied to the 
-                output of the trunk network. Defaults to `torch.tanh`.
+                output of the trunk network. Defaults to `torch.nn.ReLU()`.
             num_outputs (int, optional): The number of output dimensions of the model. Defaults to 1.
             should_normalize (bool, optional): A boolean flag indicating whether to normalize the 
                 input functions, input coordinates, and output solutions. Defaults to True.
