@@ -41,7 +41,7 @@ def solve_ode_with_grf_1d(x_sensor, F, g, domain=(0, 1), n_loc=100):
             return g(x, u, f_interp(x))
         
         solution = solve_ivp(g_wrapped, domain, [0], t_eval=x, method='RK45')
-        idx = np.random.choice(len(x), size=n_loc, replace=False)
+        idx = np.random.choice(len(solution.t), size=n_loc, replace=False)
         idx = np.sort(idx)
         X[i] = solution.t[idx]
         U[i] = solution.y[0][idx]
