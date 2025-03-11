@@ -148,6 +148,7 @@ logger = Logger(LOG_DIR, log_keys, num_iters=N_ITERS, print_interval=100)
 def relative_l2_error(U_pred, U):
     return np.linalg.norm(U_pred - U) / np.linalg.norm(U)
 
+
 # ---------------------------------
 # --- 开始训练 打印并保存训练信息 ---
 # ---------------------------------
@@ -189,7 +190,7 @@ for it in range(N_ITERS):
     if loss.item() < best_loss:                             # 保存最优模型
         model_info = {
             'iter': it,
-            'nn_sol_state': deeponet.state_dict(),
+            'nn_state': deeponet.state_dict(),
         }
         torch.save(model_info, os.path.join(MODEL_DIR, 'model.pth'))
         best_loss = loss.item()
@@ -204,7 +205,7 @@ logger.save()
 logger.load()
 
 model_info = torch.load(os.path.join(MODEL_DIR, 'model.pth'))
-deeponet.load_state_dict(model_info['nn_sol_state'])
+deeponet.load_state_dict(model_info['nn_state'])
 deeponet.eval()
 
 
