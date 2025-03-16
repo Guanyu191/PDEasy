@@ -13,7 +13,7 @@ Specifically, we implement FFN models for 1D, 2D, 1DT, and 2DT problems, includi
     3. STMFF1DT: Spatio Temporal Multiscale Fourier Feature Model for 1D Space and Time.
     4. FF2D: Fourier Feature Model for 2D Space.
     5. MFF2D: Multiscale Fourier Feature Model for 2D Space.
-    6. FF2DT: Fourier Feature Model for 2D Space and Time.
+    6. STFF2DT: Fourier Feature Model for 2D Space and Time.
 
 To create a network instance, simply pass in a list representing the number of layers 
 and the number of neurons in each layer of the neural network.
@@ -558,7 +558,7 @@ class MFF2D(nn.Module):
         return u
 
 
-class FF2DT(nn.Module):
+class STFF2DT(nn.Module):
     r"""Fourier Feature Model for 2D Space and Time.
 
     Args:
@@ -625,7 +625,7 @@ class FF2DT(nn.Module):
             'sigma_y': sigma_y,
             'sigma_t': sigma_t,
         }
-        super(FF2D, self).__init__()
+        super(STFF2DT, self).__init__()
 
         self.sigma_x = sigma_x
         self.sigma_y = sigma_y
