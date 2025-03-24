@@ -1,0 +1,2 @@
+[console_scripts]
+pdeasy-cli = pdeasy.cli:main
