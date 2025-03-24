@@ -11,14 +11,11 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-import sys
-sys.path.append("../../")
-
-from dataset import Dataset2D
-from framework import PINNForward
-from network import MFF2D
-from utils import *
-from plotting import *
+from pdeasy.dataset import Dataset2D
+from pdeasy.framework import PINNForward
+from pdeasy.network import MFF2D
+from pdeasy.utils import *
+from pdeasy.plotting import *
 
 
 # --------------
