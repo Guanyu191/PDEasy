@@ -16,7 +16,13 @@
 
 ## :package: Installation
 
-目前仅支持下载压缩包使用.
+- Step 1: Clone pdeasy
+
+  ```git clone https://github.com/Guanyu191/PDEasy.git```
+
+- Step 2: Enter the root directory of pdeasy and run
+
+  `pip install .`
 
 ## :rocket: Reference
 
