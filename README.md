@@ -1,4 +1,4 @@
-# PDEasy ​(​0​.​1​.​2)​ :zap:
+# PDEasy ​(​0​.​1​.​3)​ :zap:
 
 [![PyPI Version](https://img.shields.io/pypi/v/pdeasy)](https://pypi.org/project/pdeasy/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
