@@ -5,7 +5,7 @@ import os
 
 def plot_solution_from_data(figure_dir, **kwargs):
     plt.rcParams.update({'font.size':18})
-    plt.rcParams['font.family'] = 'Times New Roman'
+    # plt.rcParams['font.family'] = 'Times New Roman'
 
     required_keys = ['x_grid','sol','sol_pred']
     for key in required_keys:
