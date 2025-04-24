@@ -109,10 +109,11 @@ class PIDeepONetForward(_PINN):
         else:
             raise
                 
-        branch = self.net_branch(F)
-        trunk = self.net_trunk(X)
+        branch = self.net_branch(F)  # (n_func, n_outdim, n_p)
+        trunk = self.net_trunk(X)  # (n_func, n_p)
+        trunk = trunk.unsqueeze(1)  # (n_func, 1, n_p)
 
-        solution = torch.sum(branch * trunk, dim=-1, keepdim=True) + self.bias_last
+        solution = torch.sum(branch * trunk, dim=-1, keepdim=False) + self.bias_last
 
         # Split input coordinates and output solution for output transform.
         X = self.split_columns(X)
