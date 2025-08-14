@@ -3,7 +3,8 @@ import torch
 
 
 class _Dataset():
-    def __init__(self):
+    def __init__(self, device=None, dtype=None):
+
         r"""Initialize the dataset object.
 
         This method is responsible for setting up the device and initializing the data dictionary.
@@ -21,13 +22,15 @@ class _Dataset():
             The `data_dict` is one of the cores of PDEasy. All data flow, including data generation
             and passing data into the model for training, occurs in the form of the `data_dict`.
         """
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.dtype = dtype or torch.float32
+
         self.data_dict = {}
 
     def array2tensor(self):
         for k, v in self.data_dict.items():
             if isinstance(v, np.ndarray):
-                self.data_dict[k] = torch.from_numpy(v).float().to(self.device)
+                self.data_dict[k] = torch.from_numpy(v).float().to(self.device, self.dtype)
             else:
                 actual_type = type(v).__name__
                 raise ValueError(f"Current {k} is not a numpy array, but {actual_type}")

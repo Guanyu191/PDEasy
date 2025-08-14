@@ -37,6 +37,7 @@ Example::
 """
 from typing import Tuple, Union
 import numpy as np
+import torch
 
 from pdeasy.dataset.dataset_base import _Dataset
 from pdeasy.utils.sample_on_line import sample_on_line
@@ -45,15 +46,17 @@ from pdeasy.utils.sample_on_line import sample_on_line
 class Dataset1D(_Dataset):
     def __init__(
             self, 
-            domain: Tuple[float, float]
-    ) -> None:
+            domain: Tuple[float, float], 
+            device: torch.device = None,
+            dtype: torch.dtype = None,
+    ):
         """1D 空间的矩形域.
 
         Args:
             domain (Tuple[float, float]): (x_min, x_max).
         """
 
-        super().__init__()
+        super().__init__(device, dtype)
         self.x_min, self.x_max = domain
         self.first_update()
 
@@ -82,8 +85,10 @@ class Dataset1D(_Dataset):
 class Dataset1DT(_Dataset):
     def __init__(
             self, 
-            domain: Tuple[float, float, float, float]
-    ) -> None:
+            domain: Tuple[float, float, float, float], 
+            device: torch.device = None,
+            dtype: torch.dtype = None,
+    ):
         """1D 空间 + 时间的矩形域.
 
         Args:
@@ -91,7 +96,8 @@ class Dataset1DT(_Dataset):
                 (x_min, x_max, t_min, t_max).
         """
 
-        super().__init__()
+        super().__init__(device, dtype)
+
         self.x_min, self.x_max, self.t_min, self.t_max = domain
         self.first_update()
 
@@ -157,8 +163,10 @@ class Dataset1DT(_Dataset):
 class Dataset2D(_Dataset):
     def __init__(
             self, 
-            domain: Tuple[float, float, float, float]
-    ) -> None:
+            domain: Tuple[float, float, float, float], 
+            device: torch.device = None,
+            dtype: torch.dtype = None,
+    ):
         """2D 空间的矩形域.
 
         Args:
@@ -166,7 +174,8 @@ class Dataset2D(_Dataset):
                 (x_min, x_max, y_min, y_max).
         """
 
-        super().__init__()
+        super().__init__(device, dtype)
+
         self.x_min, self.x_max, self.y_min, self.y_max = domain
         self.first_update()
 
@@ -222,8 +231,10 @@ class Dataset2D(_Dataset):
 class Dataset2DT(_Dataset):
     def __init__(
             self, 
-            domain: Tuple[float, float, float, float, float, float]
-    ) -> None:
+            domain: Tuple[float, float, float, float, float, float], 
+            device: torch.device = None,
+            dtype: torch.dtype = None,
+    ):
         """2D 空间 + 时间的矩形域.
 
         Args:
@@ -231,7 +242,8 @@ class Dataset2DT(_Dataset):
                 (x_min, x_max, y_min, y_max, t_min, t_max).
         """
 
-        super().__init__()
+        super().__init__(device, dtype)
+
         self.x_min, self.x_max, self.y_min, self.y_max, self.t_min, self.t_max = domain
         self.first_update()
 

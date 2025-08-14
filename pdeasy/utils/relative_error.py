@@ -51,8 +51,9 @@ def relative_error_of_solution(pinn, ref_data, num_sample=None):
         X = X[idx]
         sol = sol[idx]
 
+    dtype = next(pinn.network_solution.parameters()).dtype
     sol_pred = pinn.net_sol(
-        torch.from_numpy(X).float().to(device)
+        torch.from_numpy(X).to(device, dtype)
     )
 
     if sol.shape[1] == 1:
@@ -122,8 +123,9 @@ def relative_error_of_parameter(pinn, ref_data, num_sample=None, column_index=No
         X = X[idx]
         param = param[idx]
 
+    dtype = next(pinn.network_solution.parameters()).dtype
     param_pred = pinn.net_param(
-        torch.from_numpy(X).float().to(device),
+        torch.from_numpy(X).to(device, dtype),
         column_index=column_index
     )
 
