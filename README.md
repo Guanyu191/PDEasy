@@ -1,4 +1,4 @@
-# PDEasy ​(​0​.​1​.​3)​ :zap:
+# PDEasy ​(​0​.​1​.4)​ :zap:
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
