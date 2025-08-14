@@ -1,6 +1,5 @@
 # PDEasy ​(​0​.​1​.​3)​ :zap:
 
-[![PyPI Version](https://img.shields.io/pypi/v/pdeasy)](https://pypi.org/project/pdeasy/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 **PDEasy: Lightweight PINN & Operator PDE Solver for Research, Balancing Abstraction and Flexibility for Algorithm Innovation.**
@@ -10,15 +9,17 @@
 > **Log:**
 >
 > - 0.1.0  |  Implemented a framework for solving forward and inverse problems using PINN, supporting multiple inputs and outputs, as well as convenient differentiation.
-> - 0.1.1  |  Implemented the solution of 1D examples using DeepONet. Refactored `pinn` into `framework` to be compatible with the operator learning framework.
-> - 0.1.2  |  Implemented the solution of 1D examples using Physics - informed DeepONet and added examples for high - frequency problems.
+> - 0.1.1  |  Implemented the example of 1D problems using Deep Operator Network (DeepONet). Refactored `pinn` into `framework` to be compatible with the operator learning framework.
+
+> - 0.1.2  |  Implemented the example of 1D problems using Physics-informed DeepONet (PIDeepONet) and added examples for high - frequency problems.
 > - 0.1.3  |  Packaged the library as a Python package that can be installed and invoked via `pip`. Fixed several bugs.
+> - 0.1.4  |  Implemented the example of 2D Poisson using Elementary Learning Machine (ELM). Optimized some bugs.
 
 ## :package: Installation
 
 - Step 1: Clone pdeasy
 
-  ```git clone https://github.com/Guanyu191/PDEasy.git```
+  `git clone https://github.com/Guanyu191/PDEasy.git`
 
 - Step 2: Enter the root directory of pdeasy and run
 
@@ -26,9 +27,14 @@
 
 ## :rocket: Reference
 
-> 1. ...
-> 2. ...
-> 3. ...
+> 1. [Raissi M, Perdikaris P, Karniadakis G E. Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations[J]. Journal of Computational physics, 2019, 378: 686-707.](https://www.sciencedirect.com/science/article/am/pii/S0021999118307125)
+> 2. [Rasht‐Behesht M, Huber C, Shukla K, et al. Physics‐informed neural networks (PINNs) for wave propagation and full waveform inversions[J]. Journal of Geophysical Research: Solid Earth, 2022, 127(5): e2021JB023120.](https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2021JB023120)
+> 3. [Zhang G, Duan Y, Pan G, et al. Data-driven discovery of state-changes in underlying system from hidden change-points in partial differential equations with spatiotemporal varying coefficients[J]. Journal of Computational and Applied Mathematics, 2025: 116962.](https://www.sciencedirect.com/science/article/pii/S0377042725004765)
+> 4. [Lu L, Jin P, Pang G, et al. Learning nonlinear operators via DeepONet based on the universal approximation theorem of operators[J]. Nature machine intelligence, 2021, 3(3): 218-229.](https://www.nature.com/articles/s42256-021-00302-5)
+> 5. [Wang S, Wang H, Perdikaris P. Learning the solution operator of parametric partial differential equations with physics-informed DeepONets[J]. Science advances, 2021, 7(40): eabi8605.](https://www.science.org/doi/abs/10.1126/sciadv.abi8605)
+> 6. [Wang S, Wang H, Perdikaris P. On the eigenvector bias of Fourier feature networks: From regression to solving multi-scale PDEs with physics-informed neural networks[J]. Computer Methods in Applied Mechanics and Engineering, 2021, 384: 113938.](https://www.sciencedirect.com/science/article/pii/S0045782521002759)
+> 7. [Quan H D, Huynh H T. Solving partial differential equation based on extreme learning machine[J]. Mathematics and Computers in Simulation, 2023, 205: 697-708.](https://www.sciencedirect.com/science/article/pii/S0378475422004323)
+> 8. ...
 
 ## 🔑 Key Features
 
