@@ -155,7 +155,7 @@ dataset = Dataset(DOMAIN)
 # the brief one is: 
 # network = MLP(NN_LAYERS, init_type='uniform', a=-1, b=1)
 # the direct one is: 
-network = MLP(NN_LAYERS)
+network = MLP(NN_LAYERS, act_type='cos')
 for m in network.model.modules():
     if isinstance(m, nn.Linear):
         nn.init.uniform_(m.weight, a=-1, b=1)
