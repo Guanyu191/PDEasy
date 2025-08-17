@@ -1,4 +1,13 @@
+import torch
 import torch.nn as nn
+
+class CosActivation(nn.Module):
+    def forward(self, x):
+        return torch.cos(2 * torch.pi * x)
+    
+class SinActivation(nn.Module):
+    def forward(self, x):
+        return torch.sin(2 * torch.pi * x)
 
 def init_network_activation_function(name):
     if name.lower() == 'relu':
@@ -23,6 +32,12 @@ def init_network_activation_function(name):
         return nn.RReLU()
     elif name.lower() == 'elu':
         return nn.ELU()
+    elif name.lower() == 'cos':
+        return CosActivation()
+    elif name.lower() == 'sin':
+        return SinActivation()
+    elif name.lower() == 'identity':
+        return nn.Identity()
     else:
         raise ValueError(f"Unknown activation function: {name}. Supported functions: relu, leakyrelu, tanh, sigmoid, gelu, selu, softplus, hardtanh, prelu, rrelu, elu.")
 
